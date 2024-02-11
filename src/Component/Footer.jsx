@@ -1,4 +1,3 @@
-import { Icon } from '@iconify/react';
 
 const Footer = () => {
     return (
