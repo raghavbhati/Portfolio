@@ -10,7 +10,7 @@ import { Analytics } from '@vercel/analytics/react';
 function App() {
   return (
     <div className="font-Poppins">
-      <Navbar/>
+      <Navbar/> 
       <Hero/>
       <About/>
       <Project/>
