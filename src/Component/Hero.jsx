@@ -13,7 +13,7 @@ const Hero = () => {
                                         <div className="animate-ping absolute  h-2 w-2 bg-main-dark rounded-full"> </div>
                                     </div>
                                     <div>
-                                        <p className="text-main-dark text-sm capitalize">AVAILABLE FOR WORK</p>
+                                        <p className="text-main-dark text-sm capitalize">Jr. Backend Developer at <a href="https://ideaclan.com/" target="_blank"><b>Ideaclan</b></a></p>
                                     </div>
                                 </div>
                             </div>
@@ -60,6 +60,7 @@ const Hero = () => {
                                     <h2 className="text-white text-lg font-medium">Connect with me:</h2>
                                 </div>
                                 <div className='flex w-5/12 m-auto justify-center gap-3'>
+                                <div className="text-xl bg-main-light px-3 py-2 rounded-full transform transition-transform hover:scale-110 hover:cursor-pointer"><a href='https://www.youtube.com/@UnboxingForever/' target="_blank"><i class="fa-brands fa-youtube"></i></a></div>
                                     <div className="text-xl bg-main-light px-3 py-2 rounded-full transform transition-transform hover:scale-110 hover:cursor-pointer"><a href='https://github.com/Raghavbhati' target="_blank"><i class="fa-brands fa-github"></i></a></div>
                                     <div className="text-xl bg-main-light px-3 py-2 rounded-full transform transition-transform hover:scale-110 hover:cursor-pointer"><a href='https://www.linkedin.com/in/raghavbhatirv/' target="_blank"><i class="fa-brands fa-linkedin-in"></i></a></div>
                                     <div className="text-xl bg-main-light px-3 py-2 rounded-full transform transition-transform hover:scale-110 hover:cursor-pointer"><a href='https://twitter.com/raghavbhatirv/' target="_blank"><i class="fa-brands fa-x-twitter"></i></a></div>
