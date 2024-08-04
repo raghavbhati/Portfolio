@@ -46,14 +46,14 @@ const Navbar = () => {
                                 <Link onClick={mobileMenu} className="block py-2 text-main-dark font-medium text-lg projects" to="projects" spy={true} smooth={true} offset={-50} duration={500}>Projects</Link>
                                 <Link onClick={mobileMenu} className="block py-2 text-main-dark font-medium text-lg contact" to="contact" spy={true} smooth={true} offset={50} duration={500}>Contact</Link>
                             </ul>
-                            <div className='text-center' onClick={handleDwonloadResume}  id="resume-button-2">
+                            {/* <div className='text-center' onClick={handleDwonloadResume}  id="resume-button-2">
                                 <div className='py-4 inline-block'>
                                     <div className='flex gap-2 bg-main-dark rounded-md items-center py-1 px-3 cursor-pointer'>
                                         <i className="fa-solid fa-download text-white text-lg"></i>
                                         <p className=" text-white font-medium text-lg">Resume</p>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

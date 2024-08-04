@@ -13,7 +13,7 @@ const Hero = () => {
                                         <div className="animate-ping absolute  h-2 w-2 bg-main-dark rounded-full"> </div>
                                     </div>
                                     <div>
-                                        <p className="text-main-dark text-sm capitalize">Jr. Backend Developer at <a href="https://ideaclan.com/" target="_blank"><b>Ideaclan</b></a></p>
+                                        <p className="text-main-dark text-sm capitalize">Associate Software Engineer at <a href="https://ideaclan.com/" target="_blank"><b>Ideaclan</b></a></p>
                                     </div>
                                 </div>
                             </div>
