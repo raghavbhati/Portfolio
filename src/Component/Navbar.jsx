@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Button, Element, Events, animateScroll as scroll, scrollSpy } from 'react-scroll';
 import styles from "./Navbar.module.css";
-import { handleDwonloadResume } from './resume';
+// import { handleDwonloadResume } from './resume';
 const Navbar = () => {
     const [mobilemenuactive, setMobilemenuactive] = useState(false);
     const mobileMenu = () => {
@@ -25,9 +25,9 @@ const Navbar = () => {
                                 <Link className="p-1 text-white font-medium text-lg hover:bg-main-dark rounded-md px-4 nav-link contact" to="contact" spy={true} smooth={true} offset={50} duration={500}>Contact</Link>
                             </ul>
                         </div>
-                        <div className='max-lg:hidden' id="resume-button-1">
+                        {/* <div className='max-lg:hidden' id="resume-button-1">
                             <p onClick={handleDwonloadResume} className="rounded-md bg-main-light text-dark py-1 px-3 font-semibold text-lg nav-link resume cursor-pointer  hover:border-white border hover:bg-transparent hover:text-white">Resume</p>
-                        </div>
+                        </div> */}
                         <div onClick={mobileMenu} className='hidden max-lg:block'>
                             {mobilemenuactive ? <i className="fa-solid fa-xmark text-white text-2xl"></i> : <i className="fa-solid fa-bars text-white text-2xl"></i>}
                         </div>
