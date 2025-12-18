@@ -1,0 +1,17 @@
+node_modules
+build
+dist
+public
+coverage
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.min.js
+*.map
+.husky
+.git
+.cache
+/.output
+/.next
+/.vercel
