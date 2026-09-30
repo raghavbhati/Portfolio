@@ -25,7 +25,7 @@ test('renders the draft sections and preserves valid section links', () => {
   container
     .querySelectorAll('a[href^="#"]')
     .forEach((link) =>
-      expect(document.getElementById(link.getAttribute('href').slice(1))).not.toBeNull()
+      expect(document.getElementById(link.getAttribute('href')!.slice(1))).not.toBeNull()
     );
 });
 
@@ -74,7 +74,7 @@ test('calendar supports selecting and keyboard navigation', () => {
     'aria-label',
     expect.stringContaining('Apr 5, 2026')
   );
-  expect(within(document.getElementById('github-activity')).getByRole('status')).toHaveTextContent(
+  expect(within(document.getElementById('github-activity')!).getByRole('status')).toHaveTextContent(
     'Apr 5, 2026'
   );
 });

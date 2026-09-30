@@ -1,17 +1,23 @@
+import type { KeyboardEvent } from 'react';
 import { useRef, useState } from 'react';
 import { contributions, leadingDays, months } from '../data/contributions';
 export default function GitHubActivity() {
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<number | null>(null);
   const [focused, setFocused] = useState(contributions.length - 1);
   const [description, setDescription] = useState('Select a day to see its sample activity.');
-  const refs = useRef([]);
-  function navigate(event, index) {
-    const moves = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 };
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  function navigate(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    const moves: Record<string, number> = {
+      ArrowLeft: -7,
+      ArrowRight: 7,
+      ArrowUp: -1,
+      ArrowDown: 1,
+    };
     if (!(event.key in moves)) return;
     event.preventDefault();
     const next = Math.max(0, Math.min(contributions.length - 1, index + moves[event.key]));
     setFocused(next);
-    refs.current[next].focus();
+    refs.current[next]?.focus();
   }
   return (
     <section className="github-section" id="github-activity" aria-labelledby="github-title">
@@ -59,7 +65,9 @@ export default function GitHubActivity() {
               {contributions.map((day, index) => (
                 <button
                   key={day.date}
-                  ref={(el) => (refs.current[index] = el)}
+                  ref={(el) => {
+                    refs.current[index] = el;
+                  }}
                   type="button"
                   className="github-cell"
                   data-level={day.level}

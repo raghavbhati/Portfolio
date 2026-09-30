@@ -1,10 +1,11 @@
+import type { MouseEvent } from 'react';
 import { useRef } from 'react';
 import { usePreferences } from './Preferences';
 export default function Settings() {
-  const dialog = useRef(null);
+  const dialog = useRef<HTMLDialogElement>(null);
   const { preferences, update, reset, status } = usePreferences();
-  function closeBackdrop(event) {
-    if (event.target !== dialog.current) return;
+  function closeBackdrop(event: MouseEvent<HTMLDialogElement>) {
+    if (!dialog.current || event.target !== dialog.current) return;
     const r = dialog.current.getBoundingClientRect();
     if (
       event.clientX < r.left ||
@@ -12,14 +13,14 @@ export default function Settings() {
       event.clientY < r.top ||
       event.clientY > r.bottom
     )
-      dialog.current.close();
+      dialog.current?.close();
   }
   return (
     <>
       <button
         className="settings-launch"
         id="settings-open"
-        onClick={() => dialog.current.showModal()}
+        onClick={() => dialog.current?.showModal()}
         type="button"
         aria-label="Open sidebar settings"
         aria-haspopup="dialog"
@@ -61,7 +62,7 @@ export default function Settings() {
           <button
             className="settings-close"
             id="settings-close"
-            onClick={() => dialog.current.close()}
+            onClick={() => dialog.current?.close()}
             aria-label="Close settings"
             type="button"
           >

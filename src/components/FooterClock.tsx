@@ -9,7 +9,8 @@ export default function FooterClock() {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-  const label = zone === 'Asia/Kolkata' ? 'India' : zone.split('/').pop().replaceAll('_', ' ');
+  const label =
+    zone === 'Asia/Kolkata' ? 'India' : (zone.split('/').pop() || 'UTC').replaceAll('_', ' ');
   return (
     <div className="footer-local">
       <span className="footer-location">

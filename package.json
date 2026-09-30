@@ -19,7 +19,8 @@
     "format": "prettier --write .",
     "eject": "react-scripts eject",
     "pages:dev": "npm run build && wrangler pages dev",
-    "pages:deploy": "npm run build && wrangler pages deploy"
+    "pages:deploy": "npm run build && wrangler pages deploy",
+    "typecheck": "tsc --noEmit"
   },
   "eslintConfig": {
     "extends": [
@@ -47,9 +48,14 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^22.20.4",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
     "prettier": "^2.8.8",
+    "typescript": "~4.9.5",
     "wrangler": "^4.143.1"
   }
 }

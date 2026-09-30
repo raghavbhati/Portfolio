@@ -13,7 +13,10 @@ npm start
 
 ## Verification
 
+The app uses strict TypeScript. TypeScript 4.9 is retained for compatibility with Create React App 5.
+
 ```sh
+npm run typecheck
 CI=true npm test -- --watchAll=false --runInBand
 npm run build
 ```
@@ -49,16 +52,16 @@ No Cloudflare account IDs, API tokens, or credentials are committed. Configuring
 
 ## Editing content
 
-- `src/App.js`: hero, experience, stack, projects, quote, and footer markup.
+- `src/App.tsx`: hero, experience, stack, projects, quote, and footer markup.
 - `src/App.css`: responsive styling and theme rules.
-- `src/data/learningLog.js`: learning log entries.
-- `src/data/contributions.js`: explicitly labeled **sample** contribution calendar, not live GitHub data.
-- `src/components/Preferences.jsx`: saved settings and theme handling.
-- `src/components/Settings.jsx`: settings sidebar.
-- `src/components/FooterClock.jsx`: clock with the selected timezone; location label is based only on the device timezone.
+- `src/data/learningLog.ts`: learning log entries.
+- `src/data/contributions.ts`: explicitly labeled **sample** contribution calendar, not live GitHub data.
+- `src/components/Preferences.tsx`: saved settings and theme handling.
+- `src/components/Settings.tsx`: settings sidebar.
+- `src/components/FooterClock.tsx`: clock with the selected timezone; location label is based only on the device timezone.
 
 Personal text, résumé and project links still contain draft placeholders. The visitor counter is not connected. The footer social links were carried over from the existing portfolio. Replace sample data before publishing as a finished personal portfolio.
 
 ## Dependency note
 
-The existing Create React App 5 toolchain is retained. Compatible dependency updates removed the critical audit findings, but `npm audit` still reports 31 findings (9 low, 8 moderate, 14 high), principally in build/test tooling. A separate build-tool migration should address these; do not use `npm audit fix --force`, which proposes replacing `react-scripts` with an incompatible version. Production output is static assets, not the development server.
+The existing Create React App 5 toolchain is retained. Compatible dependency updates removed the critical audit findings, but `npm audit` still reports 32 findings (9 low, 7 moderate, 16 high), principally in build/test tooling. A separate build-tool migration should address these; do not use `npm audit fix --force`, which proposes replacing `react-scripts` with an incompatible version. Production output is static assets, not the development server.

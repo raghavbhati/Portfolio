@@ -1,13 +1,26 @@
+import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-export const defaults = {
+export interface Preferences {
+  theme: 'dark' | 'light' | 'system';
+  font: 'editorial' | 'sans' | 'serif' | 'mono';
+  background: 'neutral' | 'warm' | 'blue' | 'green';
+  timezone: string;
+}
+interface PreferencesContextValue {
+  preferences: Preferences;
+  update: (key: keyof Preferences, value: string) => void;
+  reset: () => void;
+  status: string;
+}
+export const defaults: Preferences = {
   theme: 'dark',
   font: 'editorial',
   background: 'neutral',
   timezone: 'Asia/Kolkata',
 };
 const storageKey = 'portfolio-visitor-settings-v1';
-const allowed = {
+const allowed: Record<keyof Preferences, readonly string[]> = {
   theme: ['dark', 'light', 'system'],
   font: ['editorial', 'sans', 'serif', 'mono'],
   background: ['neutral', 'warm', 'blue', 'green'],
@@ -37,18 +50,19 @@ const colours = {
   blue: ['#0d151d', '#edf3fa'],
   green: ['#101813', '#eef5ef'],
 };
-const PreferencesContext = createContext(null);
+const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 export function readPreferences() {
   const result = { ...defaults };
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    Object.keys(allowed).forEach((key) => {
-      if (saved && allowed[key].includes(saved[key])) result[key] = saved[key];
+    (Object.keys(allowed) as (keyof Preferences)[]).forEach((key) => {
+      if (saved && typeof saved[key] === 'string' && allowed[key].includes(saved[key]))
+        Object.assign(result, { [key]: saved[key] });
     });
   } catch {}
   return result;
 }
-export function PreferencesProvider({ children }) {
+export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [preferences, setPreferences] = useState(readPreferences);
   const [status, setStatus] = useState('Preferences are saved in this browser.');
   useEffect(() => {
@@ -65,7 +79,7 @@ export function PreferencesProvider({ children }) {
     query.addEventListener('change', apply);
     return () => query.removeEventListener('change', apply);
   }, [preferences]);
-  function save(next, message) {
+  function save(next: Preferences, message: string) {
     setPreferences(next);
     try {
       localStorage.setItem(storageKey, JSON.stringify(next));
@@ -74,7 +88,7 @@ export function PreferencesProvider({ children }) {
       setStatus('Applied for this visit. Browser storage is unavailable.');
     }
   }
-  function update(key, value) {
+  function update(key: keyof Preferences, value: string) {
     if (allowed[key]?.includes(value))
       save({ ...preferences, [key]: value }, 'Preferences saved in this browser.');
   }
@@ -88,5 +102,7 @@ export function PreferencesProvider({ children }) {
   );
 }
 export function usePreferences() {
-  return useContext(PreferencesContext);
+  const context = useContext(PreferencesContext);
+  if (!context) throw new Error('PreferencesProvider is required');
+  return context;
 }
