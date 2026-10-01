@@ -1,39 +1,37 @@
-// Editable sample entries, not verified personal history.
+// Retrospective summaries of the supplied résumé, not dated journal entries.
 export const learningLogEntries = [
   {
-    date: '2026-09-21',
-    title: 'Learning Log #001 · Learning',
+    period: 'Full-stack foundations',
+    title: 'Learning · From WordPress to full-stack development',
     items: [
-      'Explored DNS fundamentals: domain names, common record types, and how a lookup reaches the right server.',
-      'Studied TLS certificates and the steps involved in establishing an encrypted connection.',
-      'Compared HTTP versions and traced the journey of a request from browser to server.',
-      'Reviewed forward proxies, reverse proxies, and the role of load balancers.',
+      'Started with content creation and WordPress before moving into web application development.',
+      'Studied Full Stack Web Development at Masai School from March 2023 to February 2024.',
+      'Built storefront clones using React, Redux, JavaScript, Tailwind CSS, and Firebase.',
     ],
     takeaway:
-      'Trace a request from start to finish. The connections between the concepts make them easier to understand.',
+      'A foundation in both frontend and backend development shapes how I build for the web.',
   },
   {
-    date: '2026-09-25',
-    title: 'Learning Log #002 · Contributing',
+    period: 'IdeaClan · March 2024 – Present',
+    title: 'Building · Backend systems at FabFunnel',
     items: [
-      'Reproduced a sample issue and wrote down the steps needed to investigate it.',
-      'Worked through an unfamiliar codebase to understand how the affected feature fits together.',
-      'Prepared a focused change with a regression check and a clear explanation of the fix.',
-      'Documented feedback and the follow-up improvements to make next.',
+      'Built GraphQL and REST APIs and used GraphQL Federation across services.',
+      'Streamed data from Kafka into ClickHouse and worked with PostgreSQL and TypeORM.',
+      'Developed real-time notifications using GraphQL subscriptions, WebSockets, Redis Pub/Sub, and RabbitMQ.',
+      'Turned application logs into user activity insights with Loki APIs.',
     ],
     takeaway:
-      'A useful contribution includes the context that helps someone else understand and maintain the change.',
+      'My work spans API design, asynchronous processing, data pipelines, and real-time updates.',
   },
   {
-    date: '2026-09-29',
-    title: 'Learning Log #003 · Building',
+    period: 'Professional development',
+    title: 'Learning · APIs and retrieval-augmented generation',
     items: [
-      'Planned a feature by breaking the work into smaller, reviewable steps.',
-      'Worked on the main flow, including input validation, error states, and useful feedback.',
-      'Checked how the experience behaves on desktop and smaller screens.',
-      'Captured what worked, what needs improvement, and the next experiment to try.',
+      'Earned the Postman API Fundamentals Student Expert certification.',
+      'Completed Building RAG Apps Using MongoDB.',
+      'Contributed frontend features with React, Apollo Client, and GraphQL Codegen.',
     ],
     takeaway:
-      'Small, finished improvements make progress visible. Keep a record of both the work and what it teaches you.',
+      'Continuing to grow across backend engineering, API tooling, and modern web applications.',
   },
 ];

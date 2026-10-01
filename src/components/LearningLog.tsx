@@ -8,9 +8,7 @@ export default function LearningLog() {
     <section className="learning-log" id="learning-log" aria-labelledby="log-heading">
       <div className="log-body">
         <h2 id="log-heading">Learning Log</h2>
-        <p className="log-subtitle">
-          What I'm learning, contributing to, and working on. · Sample entries
-        </p>
+        <p className="log-subtitle">Highlights from my learning and work.</p>
         <div className="log-entry" id="log-entry" aria-live="polite" aria-atomic="true">
           <h3>{entry.title}</h3>
           <ul className="log-list">
@@ -35,14 +33,7 @@ export default function LearningLog() {
           >
             ←
           </button>
-          <time className="log-date" dateTime={entry.date}>
-            {new Intl.DateTimeFormat('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-              timeZone: 'UTC',
-            }).format(new Date(entry.date + 'T12:00:00Z'))}
-          </time>
+          <span className="log-date">{entry.period}</span>
           <button
             className="log-arrow"
             type="button"

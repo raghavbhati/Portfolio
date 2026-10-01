@@ -16,7 +16,7 @@ beforeEach(() => {
   };
 });
 
-test('renders the draft sections and preserves valid section links', () => {
+test('renders the personal sections and preserves valid section links', () => {
   const { container } = render(<App />);
   expect(screen.getByRole('heading', { name: 'GitHub Activity' })).toBeInTheDocument();
   expect(screen.queryByText('Notes Along the Way')).not.toBeInTheDocument();
@@ -36,11 +36,13 @@ test('learning log navigation stops at both boundaries', () => {
   expect(next).toBeDisabled();
   fireEvent.click(previous);
   fireEvent.click(previous);
-  expect(screen.getByRole('heading', { name: 'Learning Log #001 · Learning' })).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { name: 'Learning · From WordPress to full-stack development' })
+  ).toBeInTheDocument();
   expect(previous).toBeDisabled();
   fireEvent.click(next);
   expect(
-    screen.getByRole('heading', { name: 'Learning Log #002 · Contributing' })
+    screen.getByRole('heading', { name: 'Building · Backend systems at FabFunnel' })
   ).toBeInTheDocument();
 });
 
@@ -64,17 +66,15 @@ test('preferences persist across remounts and reset', () => {
   expect(screen.getByLabelText('Timezone', { exact: true })).toHaveValue('Asia/Kolkata');
 });
 
-test('calendar supports selecting and keyboard navigation', () => {
+test('shows personal content and resume without fabricated activity', () => {
   render(<App />);
-  const day = screen.getByRole('button', { name: '1 sample contribution on Mar 29, 2026' });
-  fireEvent.click(day);
-  expect(day).toHaveAttribute('aria-pressed', 'true');
-  fireEvent.keyDown(day, { key: 'ArrowRight' });
-  expect(document.activeElement).toHaveAttribute(
-    'aria-label',
-    expect.stringContaining('Apr 5, 2026')
+  expect(screen.getByRole('heading', { name: "Hi, I'm Raghav Bhati" })).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Resume ↗' })).toHaveAttribute(
+    'href',
+    '/RaghavBhatiResume.pdf'
   );
-  expect(within(document.getElementById('github-activity')!).getByRole('status')).toHaveTextContent(
-    'Apr 5, 2026'
-  );
+  expect(
+    within(document.getElementById('github-activity')!).getByRole('link', { name: 'View GitHub ↗' })
+  ).toHaveAttribute('href', 'https://github.com/raghavbhatirv');
+  expect(screen.queryByText(/sample contributions|Your Name|Project One/)).not.toBeInTheDocument();
 });

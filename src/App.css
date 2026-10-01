@@ -1609,3 +1609,17 @@ body[data-theme='light'] [data-level='4'] {
     margin-inline: -18px;
   }
 }
+
+.project-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+#education .accomplishments {
+  padding-left: 0;
+}
+#education h3 {
+  margin-top: 24px;
+}

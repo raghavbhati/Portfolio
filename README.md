@@ -55,12 +55,12 @@ No Cloudflare account IDs, API tokens, or credentials are committed. Configuring
 - `src/App.tsx`: hero, experience, stack, projects, quote, and footer markup.
 - `src/App.css`: responsive styling and theme rules.
 - `src/data/learningLog.ts`: learning log entries.
-- `src/data/contributions.ts`: explicitly labeled **sample** contribution calendar, not live GitHub data.
+- `src/data/profile.ts`: project details and skills from main and the supplied résumé.
 - `src/components/Preferences.tsx`: saved settings and theme handling.
 - `src/components/Settings.tsx`: settings sidebar.
 - `src/components/FooterClock.tsx`: clock with the selected timezone; location label is based only on the device timezone.
 
-Personal text, résumé and project links still contain draft placeholders. The visitor counter is not connected. The footer social links were carried over from the existing portfolio. Replace sample data before publishing as a finished personal portfolio.
+Personal content comes from the main branch and the supplied RaghavBhatiResume.pdf, available at `/RaghavBhatiResume.pdf`. Learning logs are retrospective work summaries, not dated journal entries. GitHub links to the résumé profile; live contribution counts and visitor analytics are not connected. Project URLs are carried over from main. The standalone `portfolio-draft.html` remains the original design reference; the React app is the current portfolio.
 
 ## Dependency note
 
