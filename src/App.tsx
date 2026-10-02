@@ -53,7 +53,7 @@ export default function App() {
               .
             </p>
             <p>
-              <a className="inline-link" href="https://github.com/raghavbhatirv">
+              <a className="inline-link" href="https://github.com/raghavbhati">
                 GitHub
               </a>{' '}
               ·{' '}
@@ -297,7 +297,7 @@ export default function App() {
                   </svg>
                 </a>
                 <a
-                  href="https://github.com/raghavbhatirv"
+                  href="https://github.com/raghavbhati"
                   aria-label="GitHub"
                   title="GitHub"
                   target="_blank"

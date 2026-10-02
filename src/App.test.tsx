@@ -75,6 +75,6 @@ test('shows personal content and resume without fabricated activity', () => {
   );
   expect(
     within(document.getElementById('github-activity')!).getByRole('link', { name: 'View GitHub ↗' })
-  ).toHaveAttribute('href', 'https://github.com/raghavbhatirv');
+  ).toHaveAttribute('href', 'https://github.com/raghavbhati');
   expect(screen.queryByText(/sample contributions|Your Name|Project One/)).not.toBeInTheDocument();
 });

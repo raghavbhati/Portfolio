@@ -9,10 +9,10 @@ export default function GitHubActivity() {
       <div className="github-inset">
         <div className="github-card">
           <div className="github-heading">
-            <h3>@raghavbhatirv</h3>
+            <h3>@raghavbhati</h3>
             <a
               className="inline-link"
-              href="https://github.com/raghavbhatirv"
+              href="https://github.com/raghavbhati"
               target="_blank"
               rel="noreferrer"
             >
