@@ -53,7 +53,7 @@ No Cloudflare account IDs, API tokens, or credentials are committed. Configuring
 ## Editing content
 
 - `src/App.tsx`: hero, experience, stack, projects, quote, and footer markup.
-- `src/App.css`: responsive styling and theme rules.
+- `src/index.css`: responsive styling, theme rules, and Tailwind configuration.
 - `src/data/learningLog.ts`: learning log entries.
 - `src/data/profile.ts`: project details and skills from main and the supplied résumé.
 - `src/components/Preferences.tsx`: saved settings and theme handling.
