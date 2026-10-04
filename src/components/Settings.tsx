@@ -1,9 +1,11 @@
 import type { MouseEvent } from 'react';
 import { useRef } from 'react';
 import { usePreferences } from './Preferences';
+
 export default function Settings() {
   const dialog = useRef<HTMLDialogElement>(null);
   const { preferences, update, reset, status } = usePreferences();
+
   function closeBackdrop(event: MouseEvent<HTMLDialogElement>) {
     if (!dialog.current || event.target !== dialog.current) return;
     const r = dialog.current.getBoundingClientRect();
@@ -15,10 +17,11 @@ export default function Settings() {
     )
       dialog.current?.close();
   }
+
   return (
     <>
       <button
-        className="settings-launch"
+        className="fixed z-10 flex items-center cursor-pointer left-6 top-6 border border-line bg-panel text-bright rounded-xl py-[11px] px-[14px] gap-[9px] shadow-[0_4px_20px_#0001] max-[1100px]:left-3 max-[1100px]:top-auto max-[1100px]:bottom-5 max-[1100px]:p-3 max-[680px]:left-auto max-[680px]:right-4 max-[680px]:bottom-[18px] max-[680px]:rounded-full max-[680px]:w-[46px] max-[680px]:h-[46px] max-[680px]:justify-center"
         id="settings-open"
         onClick={() => dialog.current?.showModal()}
         type="button"
@@ -27,7 +30,7 @@ export default function Settings() {
         aria-controls="settings-dialog"
       >
         <svg
-          className="desktop-sidebar"
+          className="w-[18px] h-[18px] max-[680px]:hidden"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -38,7 +41,7 @@ export default function Settings() {
           <path d="M9 4v16M5.5 8h1M5.5 12h1"></path>
         </svg>
         <svg
-          className="mobile-gear"
+          className="w-[18px] h-[18px] hidden max-[680px]:block"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -48,19 +51,21 @@ export default function Settings() {
           <path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 2 1 3h4l1-3 3-1 2-3-2-2 1-3-3-2-1-3z"></path>
           <circle cx="10.5" cy="11.5" r="3"></circle>
         </svg>
-        <span className="launch-label">Open sidebar</span>
+        <span className="max-[1100px]:hidden">Open sidebar</span>
       </button>
       <dialog
-        className="settings-dialog"
+        className="fixed m-0 overflow-auto inset-[16px_auto_16px_20px] w-[300px] max-w-[calc(100vw-32px)] h-[calc(100dvh-32px)] max-h-[calc(100dvh-32px)] border border-line rounded-[18px] p-6 bg-panel text-text shadow-[0_15px_60px_#0003] font-sans text-sm leading-normal backdrop:bg-[#0005] backdrop:backdrop-blur-[2px] max-[680px]:inset-[12px_auto_12px_12px] max-[680px]:h-[calc(100dvh-24px)] max-[680px]:max-h-[calc(100dvh-24px)] max-[680px]:w-[310px] max-[680px]:p-[22px]"
         id="settings-dialog"
         ref={dialog}
         onClick={closeBackdrop}
         aria-labelledby="settings-title"
       >
-        <div className="settings-heading">
-          <h2 id="settings-title">Sidebar</h2>
+        <div className="flex items-center justify-between mb-[22px]">
+          <h2 className="m-0 font-sans font-medium text-xl text-bright" id="settings-title">
+            Sidebar
+          </h2>
           <button
-            className="settings-close"
+            className="border-0 bg-transparent cursor-pointer text-2xl text-text px-[5px]"
             id="settings-close"
             onClick={() => dialog.current?.close()}
             aria-label="Close settings"
@@ -69,55 +74,63 @@ export default function Settings() {
             ×
           </button>
         </div>
-        <fieldset className="settings-group">
-          <legend>Theme</legend>
-          <label className="theme-choice">
+        <fieldset className="border-0 p-0 m-0 min-w-0 pb-6 mb-6 border-b border-line">
+          <legend className="block text-[11px] uppercase mb-3 tracking-[0.5px] text-secondary">
+            Theme
+          </legend>
+          <label className="flex items-center gap-[10px] cursor-pointer py-[9px] px-0 text-text">
             <input
+              className="accent-[#389df5]"
               type="radio"
               name="theme"
               value="dark"
               checked={preferences.theme === 'dark'}
               onChange={() => update('theme', 'dark')}
             />
-            <span className="theme-symbol" aria-hidden="true">
+            <span className="w-[18px] text-center text-[19px]" aria-hidden="true">
               ☾
             </span>{' '}
             Dark
           </label>
-          <label className="theme-choice">
+          <label className="flex items-center gap-[10px] cursor-pointer py-[9px] px-0 text-text">
             <input
+              className="accent-[#389df5]"
               type="radio"
               name="theme"
               value="light"
               checked={preferences.theme === 'light'}
               onChange={() => update('theme', 'light')}
             />
-            <span className="theme-symbol" aria-hidden="true">
+            <span className="w-[18px] text-center text-[19px]" aria-hidden="true">
               ☼
             </span>{' '}
             Light
           </label>
-          <label className="theme-choice">
+          <label className="flex items-center gap-[10px] cursor-pointer py-[9px] px-0 text-text">
             <input
+              className="accent-[#389df5]"
               type="radio"
               name="theme"
               value="system"
               checked={preferences.theme === 'system'}
               onChange={() => update('theme', 'system')}
             />
-            <span className="theme-symbol" aria-hidden="true">
+            <span className="w-[18px] text-center text-[19px]" aria-hidden="true">
               ▣
             </span>{' '}
             System
           </label>
         </fieldset>
-        <div className="settings-group">
-          <div className="setting-block">
-            <label className="settings-label" htmlFor="settings-font">
+        <div className="border-0 p-0 m-0 min-w-0 pb-6 mb-6 border-b border-line">
+          <div>
+            <label
+              className="block text-[11px] uppercase mb-3 tracking-[0.5px] text-secondary"
+              htmlFor="settings-font"
+            >
               Font
             </label>
             <select
-              className="settings-select"
+              className="w-full p-[10px] bg-control text-bright border border-line rounded-lg font-sans text-[13px]"
               id="settings-font"
               value={preferences.font}
               onChange={(event) => update('font', event.target.value)}
@@ -128,57 +141,61 @@ export default function Settings() {
               <option value="mono">Monospace</option>
             </select>
           </div>
-          <div className="setting-block">
-            <span className="settings-label" id="background-label">
+          <div className="mt-5">
+            <span
+              className="block text-[11px] uppercase mb-3 tracking-[0.5px] text-secondary"
+              id="background-label"
+            >
               Background colour
             </span>
-            <div className="swatches" role="group" aria-labelledby="background-label">
+            <div className="flex gap-[10px]" role="group" aria-labelledby="background-label">
               <button
-                className="swatch"
+                className="w-[38px] h-[38px] rounded-full cursor-pointer border-2 border-[#777] bg-[#181818] aria-pressed:outline-2 aria-pressed:outline-[#389df5] aria-pressed:outline-offset-[3px]"
                 type="button"
                 data-background="neutral"
                 aria-label="Neutral background"
                 aria-pressed={preferences.background === 'neutral'}
                 onClick={() => update('background', 'neutral')}
-                style={{ '--swatch': '#181818' }}
               ></button>
               <button
-                className="swatch"
+                className="w-[38px] h-[38px] rounded-full cursor-pointer border-2 border-[#777] bg-[#45352c] aria-pressed:outline-2 aria-pressed:outline-[#389df5] aria-pressed:outline-offset-[3px]"
                 type="button"
                 data-background="warm"
                 aria-label="Warm background"
                 aria-pressed={preferences.background === 'warm'}
                 onClick={() => update('background', 'warm')}
-                style={{ '--swatch': '#45352c' }}
               ></button>
               <button
-                className="swatch"
+                className="w-[38px] h-[38px] rounded-full cursor-pointer border-2 border-[#777] bg-[#263d51] aria-pressed:outline-2 aria-pressed:outline-[#389df5] aria-pressed:outline-offset-[3px]"
                 type="button"
                 data-background="blue"
                 aria-label="Blue background"
                 aria-pressed={preferences.background === 'blue'}
                 onClick={() => update('background', 'blue')}
-                style={{ '--swatch': '#263d51' }}
               ></button>
               <button
-                className="swatch"
+                className="w-[38px] h-[38px] rounded-full cursor-pointer border-2 border-[#777] bg-[#2e453b] aria-pressed:outline-2 aria-pressed:outline-[#389df5] aria-pressed:outline-offset-[3px]"
                 type="button"
                 data-background="green"
                 aria-label="Green background"
                 aria-pressed={preferences.background === 'green'}
                 onClick={() => update('background', 'green')}
-                style={{ '--swatch': '#2e453b' }}
               ></button>
             </div>
-            <p className="settings-help">Colours adapt to your light or dark theme.</p>
+            <p className="text-[11px] text-muted mt-3 m-0">
+              Colours adapt to your light or dark theme.
+            </p>
           </div>
         </div>
-        <div className="settings-group">
-          <label className="settings-label" htmlFor="settings-timezone">
+        <div className="border-0 p-0 m-0 min-w-0 pb-6 mb-6 border-b border-line">
+          <label
+            className="block text-[11px] uppercase mb-3 tracking-[0.5px] text-secondary"
+            htmlFor="settings-timezone"
+          >
             Timezone
           </label>
           <select
-            className="settings-select"
+            className="w-full p-[10px] bg-control text-bright border border-line rounded-lg font-sans text-[13px]"
             id="settings-timezone"
             value={preferences.timezone}
             onChange={(event) => update('timezone', event.target.value)}
@@ -195,14 +212,23 @@ export default function Settings() {
             <option value="Asia/Tokyo">Tokyo</option>
             <option value="Australia/Sydney">Sydney</option>
           </select>
-          <p className="settings-help">
+          <p className="text-[11px] text-muted mt-3 m-0">
             Updates the footer clock. Learning log dates stay as written.
           </p>
         </div>
-        <button className="settings-reset" id="settings-reset" onClick={reset} type="button">
-          ↺   Reset all
+        <button
+          className="w-full bg-transparent cursor-pointer border border-line rounded-lg p-[10px] text-text hover:bg-control"
+          id="settings-reset"
+          onClick={reset}
+          type="button"
+        >
+          ↺ &nbsp; Reset all
         </button>
-        <p className="settings-status" id="settings-status" role="status">
+        <p
+          className="text-[11px] text-muted mt-[14px] m-0 min-h-[34px]"
+          id="settings-status"
+          role="status"
+        >
           {status}
         </p>
       </dialog>
