@@ -4,7 +4,6 @@ import LearningLog from './components/LearningLog';
 import GitHubActivity from './components/GitHubActivity';
 import FooterClock from './components/FooterClock';
 import { PreferencesProvider } from './components/Preferences';
-import './App.css';
 export default function App() {
   return (
     <PreferencesProvider>
