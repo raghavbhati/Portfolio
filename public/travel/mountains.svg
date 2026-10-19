@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="60%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="snowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0f2fe"/>
+    </linearGradient>
+    <linearGradient id="rockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="600" height="450" fill="url(#skyGrad)"/>
+  <circle cx="480" cy="90" r="45" fill="url(#sunGrad)" opacity="0.9"/>
+  <!-- Distant Range -->
+  <polygon points="50,260 170,140 280,260" fill="#93c5fd" opacity="0.5"/>
+  <polygon points="220,260 360,110 490,260" fill="#93c5fd" opacity="0.6"/>
+  <!-- Main Peak Left -->
+  <polygon points="-40,450 180,130 380,450" fill="url(#rockGrad)"/>
+  <polygon points="180,130 110,230 180,210 240,240" fill="url(#snowGrad)"/>
+  <!-- Main Peak Right -->
+  <polygon points="200,450 420,90 640,450" fill="#1e293b"/>
+  <polygon points="420,90 340,210 420,180 510,220" fill="url(#snowGrad)"/>
+  <!-- Foreground Snow Ridge -->
+  <path d="M -20,450 Q 150,330 320,380 T 620,360 L 620,450 Z" fill="url(#snowGrad)"/>
+  <!-- Hiker / Thumb silhouette -->
+  <g transform="translate(140, 310) scale(0.7)">
+    <circle cx="20" cy="20" r="12" fill="#0f172a"/>
+    <path d="M 10,34 L 30,34 L 35,70 L 5,70 Z" fill="#e11d48"/>
+    <!-- Thumbs up gesture -->
+    <path d="M 30,42 L 55,30 L 55,18 L 62,18 L 60,35 L 45,55 Z" fill="#0f172a"/>
+  </g>
+  <!-- Prayer Flags Strand -->
+  <path d="M 280,360 Q 420,390 580,350" fill="none" stroke="#64748b" stroke-width="2"/>
+  <polygon points="320,368 335,370 330,385" fill="#3b82f6"/>
+  <polygon points="360,373 375,375 370,390" fill="#ef4444"/>
+  <polygon points="400,376 415,377 410,392" fill="#eab308"/>
+  <polygon points="440,376 455,376 450,391" fill="#22c55e"/>
+  <polygon points="480,373 495,371 490,386" fill="#f8fafc"/>
+</svg>

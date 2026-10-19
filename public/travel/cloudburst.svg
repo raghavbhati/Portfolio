@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="stormSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="60%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <linearGradient id="cliffGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="450" fill="url(#stormSky)"/>
+  <!-- Mountain Massif -->
+  <polygon points="50,450 320,110 580,450" fill="url(#cliffGrad)"/>
+  <polygon points="320,110 260,240 320,210 370,230" fill="#f8fafc" opacity="0.9"/>
+  <!-- Swirling Dramatic Storm Clouds -->
+  <circle cx="160" cy="190" r="85" fill="#f1f5f9" opacity="0.85"/>
+  <circle cx="230" cy="170" r="105" fill="#e2e8f0" opacity="0.9"/>
+  <circle cx="340" cy="180" r="95" fill="#f8fafc" opacity="0.8"/>
+  <circle cx="430" cy="210" r="100" fill="#cbd5e1" opacity="0.85"/>
+  <circle cx="280" cy="230" r="110" fill="#94a3b8" opacity="0.7"/>
+  <!-- Rain curtain lines -->
+  <g stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="8 6" opacity="0.6">
+    <line x1="100" y1="280" x2="60" y2="440"/>
+    <line x1="140" y1="290" x2="100" y2="450"/>
+    <line x1="180" y1="285" x2="140" y2="445"/>
+    <line x1="220" y1="300" x2="180" y2="450"/>
+    <line x1="380" y1="310" x2="340" y2="450"/>
+    <line x1="420" y1="300" x2="380" y2="450"/>
+    <line x1="460" y1="320" x2="420" y2="450"/>
+  </g>
+</svg>

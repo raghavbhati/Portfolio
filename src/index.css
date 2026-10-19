@@ -109,3 +109,177 @@
     }
   }
 }
+
+/* ── Travel Memory Floating & Swaying Physics ───────────────────────── */
+@keyframes travel-sway-0 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-1.5deg);
+  }
+}
+
+@keyframes travel-sway-1 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(3deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(5deg);
+  }
+}
+
+@keyframes travel-sway-2 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(-0.5deg);
+  }
+}
+
+@keyframes travel-sway-3 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(4deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+@keyframes travel-sway-4 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(2deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(4deg);
+  }
+}
+
+@keyframes travel-sway-5 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-5deg);
+  }
+}
+
+@keyframes travel-sway-6 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(3deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+}
+
+@keyframes travel-sway-7 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(0.5deg);
+  }
+}
+
+@keyframes travel-sway-8 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(3deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(5deg);
+  }
+}
+
+@keyframes travel-sway-9 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-1deg);
+  }
+}
+
+@keyframes travel-string-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.45));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.9));
+  }
+}
+
+.travel-float-0 {
+  animation: travel-sway-0 5.2s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-1 {
+  animation: travel-sway-1 4.7s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-2 {
+  animation: travel-sway-2 5.6s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-3 {
+  animation: travel-sway-3 4.3s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-4 {
+  animation: travel-sway-4 5.9s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-5 {
+  animation: travel-sway-5 4.9s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-6 {
+  animation: travel-sway-6 5.4s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-7 {
+  animation: travel-sway-7 4.5s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-8 {
+  animation: travel-sway-8 5.7s ease-in-out infinite;
+  transform-origin: top center;
+}
+.travel-float-9 {
+  animation: travel-sway-9 5.1s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.travel-string-glow {
+  animation: travel-string-pulse 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .travel-float-0,
+  .travel-float-1,
+  .travel-float-2,
+  .travel-float-3,
+  .travel-float-4,
+  .travel-float-5,
+  .travel-float-6,
+  .travel-float-7,
+  .travel-float-8,
+  .travel-float-9,
+  .travel-string-glow {
+    animation: none !important;
+  }
+}

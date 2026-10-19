@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+  <defs>
+    <radialGradient id="tableStone" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </radialGradient>
+  </defs>
+  <!-- Outdoor stone table surface -->
+  <rect width="600" height="450" fill="url(#tableStone)"/>
+  <!-- Moss patches -->
+  <ellipse cx="120" cy="80" rx="90" ry="40" fill="#14532d" opacity="0.4"/>
+  <ellipse cx="500" cy="380" rx="100" ry="50" fill="#14532d" opacity="0.35"/>
+  <!-- Uno Cards Fan 1 (Red Card +4) -->
+  <g transform="translate(180, 180) rotate(-18)">
+    <rect x="-35" y="-55" width="70" height="110" rx="8" fill="#ef4444" stroke="#ffffff" stroke-width="3"/>
+    <ellipse cx="0" cy="0" rx="26" ry="40" fill="#0f172a" transform="rotate(25)"/>
+    <text x="0" y="8" fill="#ffffff" font-family="sans-serif" font-weight="900" font-size="28" text-anchor="middle">+4</text>
+  </g>
+  <!-- Uno Card 2 (Yellow 7) -->
+  <g transform="translate(250, 190) rotate(-4)">
+    <rect x="-35" y="-55" width="70" height="110" rx="8" fill="#eab308" stroke="#ffffff" stroke-width="3"/>
+    <ellipse cx="0" cy="0" rx="26" ry="40" fill="#ffffff" transform="rotate(-25)"/>
+    <text x="0" y="8" fill="#eab308" font-family="sans-serif" font-weight="900" font-size="32" text-anchor="middle">7</text>
+  </g>
+  <!-- Uno Card 3 (Blue Reverse) -->
+  <g transform="translate(320, 200) rotate(12)">
+    <rect x="-35" y="-55" width="70" height="110" rx="8" fill="#3b82f6" stroke="#ffffff" stroke-width="3"/>
+    <ellipse cx="0" cy="0" rx="26" ry="40" fill="#ffffff" transform="rotate(25)"/>
+    <text x="0" y="8" fill="#3b82f6" font-family="sans-serif" font-weight="900" font-size="28" text-anchor="middle">⇄</text>
+  </g>
+  <!-- Uno Card 4 (Green Skip) -->
+  <g transform="translate(390, 220) rotate(28)">
+    <rect x="-35" y="-55" width="70" height="110" rx="8" fill="#22c55e" stroke="#ffffff" stroke-width="3"/>
+    <ellipse cx="0" cy="0" rx="26" ry="40" fill="#ffffff" transform="rotate(-25)"/>
+    <text x="0" y="8" fill="#22c55e" font-family="sans-serif" font-weight="900" font-size="28" text-anchor="middle">⊘</text>
+  </g>
+  <!-- Butter / snack packet in corner -->
+  <g transform="translate(100, 110) rotate(-10)">
+    <rect width="60" height="80" rx="4" fill="#facc15" stroke="#ca8a04"/>
+    <text x="30" y="45" font-family="sans-serif" font-weight="bold" font-size="12" fill="#854d0e" text-anchor="middle">SNACK</text>
+  </g>
+  <!-- Friends Hands around cards -->
+  <ellipse cx="140" cy="350" rx="35" ry="25" fill="#f59e0b" opacity="0.8"/>
+  <ellipse cx="460" cy="360" rx="35" ry="25" fill="#f59e0b" opacity="0.8"/>
+</svg>

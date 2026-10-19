@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="wallGraffiti" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="40%" stop-color="#8b5cf6"/>
+      <stop offset="80%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <!-- Bohemian Wall -->
+  <rect width="600" height="450" fill="#18181b"/>
+  <!-- Colorful Graffiti Banner -->
+  <rect x="50" y="80" width="500" height="240" rx="12" fill="url(#wallGraffiti)" opacity="0.85"/>
+  <rect x="60" y="90" width="480" height="220" rx="8" fill="#18181b" opacity="0.6"/>
+  <!-- Music Notes & Harmony text -->
+  <text x="300" y="160" fill="#facc15" font-family="serif" font-style="italic" font-weight="bold" font-size="38" text-anchor="middle" letter-spacing="2">NOTES &amp; HARMONY</text>
+  <text x="300" y="210" fill="#f8fafc" font-family="monospace" font-size="16" text-anchor="middle" letter-spacing="4">KASOL RIVERSIDE · EST. 2024</text>
+  <!-- Musical Notes floating -->
+  <g fill="#f43f5e" font-size="28" font-family="sans-serif">
+    <text x="120" y="140">♪</text>
+    <text x="460" y="150">♫</text>
+    <text x="180" y="250">♩</text>
+    <text x="420" y="260">♬</text>
+  </g>
+  <!-- Acoustic Guitar Outline -->
+  <g transform="translate(100, 180) rotate(-20) scale(0.6)" fill="none" stroke="#facc15" stroke-width="4">
+    <circle cx="50" cy="50" r="30"/>
+    <circle cx="50" cy="110" r="45"/>
+    <line x1="50" y1="20" x2="50" y2="-60"/>
+  </g>
+  <!-- Friends silhouettes walking past -->
+  <g transform="translate(200, 270)">
+    <!-- Friend 1 -->
+    <circle cx="40" cy="40" r="14" fill="#09090b"/>
+    <rect x="26" y="55" width="28" height="90" rx="4" fill="#3b82f6"/>
+    <!-- Friend 2 -->
+    <circle cx="100" cy="35" r="15" fill="#09090b"/>
+    <rect x="85" y="50" width="30" height="95" rx="4" fill="#ec4899"/>
+    <!-- Friend 3 -->
+    <circle cx="160" cy="40" r="14" fill="#09090b"/>
+    <rect x="146" y="55" width="28" height="90" rx="4" fill="#10b981"/>
+  </g>
+</svg>

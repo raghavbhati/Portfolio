@@ -2,6 +2,8 @@ import { projects, stack } from './data/profile';
 import Settings from './components/Settings';
 import LearningLog from './components/LearningLog';
 import GitHubActivity from './components/GitHubActivity';
+import Memories from './components/Memories';
+import TravelMemory from './components/TravelMemory';
 import FooterClock from './components/FooterClock';
 import { PreferencesProvider } from './components/Preferences';
 
@@ -603,6 +605,9 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      <Memories />
+      <TravelMemory />
     </PreferencesProvider>
   );
 }

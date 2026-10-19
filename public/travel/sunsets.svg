@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sunsetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="35%" stop-color="#db2777"/>
+      <stop offset="70%" stop-color="#f97316"/>
+      <stop offset="90%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#fed7aa"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="450" fill="url(#sunsetGrad)"/>
+  <!-- Glowing Sun sinking -->
+  <circle cx="300" cy="310" r="45" fill="#fffbeb" opacity="0.95"/>
+  <!-- Sun Rays / Glow -->
+  <ellipse cx="300" cy="315" rx="140" ry="25" fill="#fef08a" opacity="0.4"/>
+  <!-- Mountain Ridges Silhouette Layers -->
+  <path d="M 0,330 Q 150,290 320,330 T 600,310 L 600,450 L 0,450 Z" fill="#831843" opacity="0.6"/>
+  <path d="M 0,360 Q 200,320 400,360 T 600,340 L 600,450 L 0,450 Z" fill="#4c0519" opacity="0.8"/>
+  <path d="M 0,400 Q 180,360 380,410 T 600,390 L 600,450 L 0,450 Z" fill="#1f1124"/>
+  <!-- Pine tree silhouettes along ridge -->
+  <polygon points="40,360 48,310 56,360" fill="#1f1124"/>
+  <polygon points="54,365 62,320 70,365" fill="#1f1124"/>
+  <polygon points="120,370 128,315 136,370" fill="#1f1124"/>
+  <polygon points="510,380 518,320 526,380" fill="#1f1124"/>
+  <polygon points="530,375 540,305 550,375" fill="#1f1124"/>
+</svg>
