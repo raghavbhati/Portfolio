@@ -1,4 +1,13 @@
 // Project details from main; professional skills from the supplied résumé.
+export const email = 'workmail.raghav@gmail.com';
+export const links = {
+  github: 'https://github.com/raghavbhati',
+  linkedin: 'https://www.linkedin.com/in/raghavbhatirv/',
+  x: 'https://twitter.com/raghavbhatirv/',
+};
+/** Set to '/RaghavBhatiResume.pdf' once the PDF is in public/; until then the links say so. */
+export const resumeUrl: string | null = null;
+
 export const stack = [
   { category: 'Languages', tools: ['TypeScript', 'JavaScript', 'SQL', 'Java'] },
   {

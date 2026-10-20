@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 
 /* ── Design Tokens via Tailwind v4 @theme ─────────────────────────────── */
-@theme {
+/* `inline` makes utilities read the live variables, so the light theme and the visitor's
+   background preference (set on <body>) reach every element, not just <body>. */
+@theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-line: var(--line);
@@ -13,6 +15,7 @@
   --color-control: var(--control);
   --color-heading: var(--heading);
   --color-secondary: var(--secondary);
+  --color-string: var(--string);
 
   --font-serif: var(--serif);
   --font-sans: var(--sans);
@@ -24,32 +27,41 @@
   :root {
     color-scheme: dark;
     --bg: #000;
-    --surface: #080808;
-    --line: #262626;
     --text: #b0b0b0;
     --muted: #929292;
     --bright: #ededed;
-    --tag: #242424;
     --serif: 'Instrument Serif', Georgia, serif;
     --sans: 'DM Sans', Arial, sans-serif;
-    --panel: #1c1c1c;
-    --control: #252525;
     --heading: #ededed;
     --secondary: #b0b0b0;
+    --string: #fb6474;
+  }
+
+  /* Surfaces are shades of the page background, so the visitor's background colour
+     (set as --bg on <body>) tints every card, chip, border and panel with it. They must be
+     declared here, where --bg is set. On the default black these are #080808, #1c1c1c,
+     #242424, #252525 and #262626. */
+  body {
+    --surface: color-mix(in srgb, var(--bg), #fff 3%);
+    --panel: color-mix(in srgb, var(--bg), #fff 11%);
+    --tag: color-mix(in srgb, var(--bg), #fff 14%);
+    --control: color-mix(in srgb, var(--bg), #fff 14.5%);
+    --line: color-mix(in srgb, var(--bg), #fff 15%);
   }
 
   body[data-theme='light'] {
     color-scheme: light;
-    --surface: #f4f4f3;
-    --line: #d6d6d2;
+    --surface: color-mix(in srgb, var(--bg), #000 2.4%);
+    --panel: color-mix(in srgb, var(--bg), #000 1.6%);
+    --tag: color-mix(in srgb, var(--bg), #000 7.2%);
+    --control: color-mix(in srgb, var(--bg), #000 7.2%);
+    --line: color-mix(in srgb, var(--bg), #000 14.4%);
     --text: #444;
     --muted: #646464;
     --bright: #191919;
-    --tag: #e8e8e5;
-    --panel: #f6f6f4;
-    --control: #e8e8e5;
     --heading: #191919;
     --secondary: #555;
+    --string: #e35469;
   }
 
   * {
@@ -110,176 +122,74 @@
   }
 }
 
-/* ── Travel Memory Floating & Swaying Physics ───────────────────────── */
-@keyframes travel-sway-0 {
+/* ── Pinboard dots ────────────────────────────────────────────────────── */
+/* One dot every 24px, centred in its tile. DotField's canvas draws on the same grid. */
+@utility dot-grid {
+  background-image: radial-gradient(circle, var(--line) 1px, transparent 1.4px);
+  background-size: 24px 24px;
+}
+
+/* ── Memory boards ────────────────────────────────────────────────────── */
+@keyframes memory-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+}
+
+@keyframes memory-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes memory-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes memory-eq {
   0%,
   100% {
-    transform: translateY(0px) rotate(-4deg);
+    transform: scaleY(0.35);
   }
   50% {
-    transform: translateY(-8px) rotate(-1.5deg);
+    transform: scaleY(1);
   }
 }
 
-@keyframes travel-sway-1 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(3deg);
-  }
-  50% {
-    transform: translateY(-9px) rotate(5deg);
-  }
+.memory-drop-in {
+  animation: memory-drop-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-@keyframes travel-sway-2 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(-3deg);
-  }
-  50% {
-    transform: translateY(-7px) rotate(-0.5deg);
-  }
+.memory-pop {
+  animation: memory-pop 260ms ease-out both;
 }
 
-@keyframes travel-sway-3 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(4deg);
-  }
-  50% {
-    transform: translateY(-10px) rotate(2deg);
-  }
+.memory-strings {
+  animation: memory-fade 700ms ease-out 250ms both;
 }
 
-@keyframes travel-sway-4 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(2deg);
-  }
-  50% {
-    transform: translateY(-7px) rotate(4deg);
-  }
+.memory-eq > span {
+  transform-origin: bottom;
+  animation: memory-eq 900ms ease-in-out infinite;
 }
 
-@keyframes travel-sway-5 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(-3deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(-5deg);
-  }
+.memory-eq > span:nth-child(2) {
+  animation-delay: -300ms;
 }
 
-@keyframes travel-sway-6 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(3deg);
-  }
-  50% {
-    transform: translateY(-6px) rotate(1deg);
-  }
-}
-
-@keyframes travel-sway-7 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(-2deg);
-  }
-  50% {
-    transform: translateY(-9px) rotate(0.5deg);
-  }
-}
-
-@keyframes travel-sway-8 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(3deg);
-  }
-  50% {
-    transform: translateY(-7px) rotate(5deg);
-  }
-}
-
-@keyframes travel-sway-9 {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(-4deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(-1deg);
-  }
-}
-
-@keyframes travel-string-pulse {
-  0%,
-  100% {
-    opacity: 0.8;
-    filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.45));
-  }
-  50% {
-    opacity: 1;
-    filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.9));
-  }
-}
-
-.travel-float-0 {
-  animation: travel-sway-0 5.2s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-1 {
-  animation: travel-sway-1 4.7s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-2 {
-  animation: travel-sway-2 5.6s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-3 {
-  animation: travel-sway-3 4.3s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-4 {
-  animation: travel-sway-4 5.9s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-5 {
-  animation: travel-sway-5 4.9s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-6 {
-  animation: travel-sway-6 5.4s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-7 {
-  animation: travel-sway-7 4.5s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-8 {
-  animation: travel-sway-8 5.7s ease-in-out infinite;
-  transform-origin: top center;
-}
-.travel-float-9 {
-  animation: travel-sway-9 5.1s ease-in-out infinite;
-  transform-origin: top center;
-}
-
-.travel-string-glow {
-  animation: travel-string-pulse 4s ease-in-out infinite;
+.memory-eq > span:nth-child(3) {
+  animation-delay: -600ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .travel-float-0,
-  .travel-float-1,
-  .travel-float-2,
-  .travel-float-3,
-  .travel-float-4,
-  .travel-float-5,
-  .travel-float-6,
-  .travel-float-7,
-  .travel-float-8,
-  .travel-float-9,
-  .travel-string-glow {
-    animation: none !important;
+  .memory-drop-in,
+  .memory-pop,
+  .memory-strings,
+  .memory-eq > span {
+    animation: none;
   }
 }

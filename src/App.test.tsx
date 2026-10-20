@@ -48,30 +48,36 @@ test('learning log navigation stops at both boundaries', () => {
 
 test('preferences persist across remounts and reset', () => {
   const first = render(<App />);
-  fireEvent.click(screen.getByRole('button', { name: 'Open sidebar settings' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Open settings' }));
   fireEvent.click(screen.getByRole('radio', { name: 'Light', exact: true }));
-  fireEvent.change(screen.getByLabelText('Font', { exact: true }), { target: { value: 'mono' } });
-  fireEvent.change(screen.getByLabelText('Timezone', { exact: true }), {
-    target: { value: 'UTC' },
-  });
+  fireEvent.click(screen.getByRole('button', { name: 'Warm background' }));
   expect(document.body.dataset.theme).toBe('light');
   first.unmount();
   render(<App />);
   expect(document.body.dataset.theme).toBe('light');
-  fireEvent.click(screen.getByRole('button', { name: 'Open sidebar settings' }));
-  expect(screen.getByLabelText('Font', { exact: true })).toHaveValue('mono');
-  expect(screen.getByLabelText('Timezone', { exact: true })).toHaveValue('UTC');
+  fireEvent.click(screen.getByRole('button', { name: 'Open settings' }));
+  expect(screen.getByRole('button', { name: 'Warm background' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
   fireEvent.click(screen.getByRole('button', { name: /Reset all/ }));
   expect(document.body.dataset.theme).toBe('dark');
-  expect(screen.getByLabelText('Timezone', { exact: true })).toHaveValue('Asia/Kolkata');
+  expect(screen.getByRole('button', { name: 'Neutral background' })).toHaveAttribute(
+    'aria-pressed',
+    'true'
+  );
+  // Only theme and background are visitor choices; the fonts and clock are fixed.
+  expect(screen.queryByLabelText('Font')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Timezone')).not.toBeInTheDocument();
 });
 
 test('shows personal content and resume without fabricated activity', () => {
   render(<App />);
   expect(screen.getByRole('heading', { name: "Hi, I'm Raghav Bhati" })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: 'Resume ↗' })).toHaveAttribute(
-    'href',
-    '/RaghavBhatiResume.pdf'
+  // There's no résumé PDF to share yet, so neither Resume link pretends otherwise.
+  expect(screen.queryByRole('link', { name: /Resume/ })).not.toBeInTheDocument();
+  expect(screen.getByText('Resume ↗')).toHaveAccessibleDescription(
+    'Resume currently not available'
   );
   expect(
     within(document.getElementById('github-activity')!).getByRole('link', { name: 'View GitHub ↗' })

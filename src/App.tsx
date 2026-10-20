@@ -1,22 +1,25 @@
 import { projects, stack } from './data/profile';
 import Settings from './components/Settings';
+import ResumeLink from './components/ResumeLink';
+import CommandPalette from './components/CommandPalette';
 import LearningLog from './components/LearningLog';
 import GitHubActivity from './components/GitHubActivity';
 import Memories from './components/Memories';
 import TravelMemory from './components/TravelMemory';
 import FooterClock from './components/FooterClock';
+import DotField from './components/DotField';
 import { PreferencesProvider } from './components/Preferences';
 
 export default function App() {
   return (
     <PreferencesProvider>
-      <Settings />
-
       <a className="absolute z-20 bg-white text-black p-2 left-3 -top-20 focus:top-3" href="#main">
         Skip to content
       </a>
 
-      <div className="max-w-3xl min-h-screen mx-auto border-x border-dashed border-line">
+      <DotField />
+
+      <div className="max-w-3xl min-h-screen mx-auto border-x border-dashed border-line bg-bg">
         <header className="h-16 flex items-center justify-between py-4 px-6 border-b border-dashed border-line max-[420px]:px-[18px]">
           <a
             className="grid place-items-center w-8 h-8 rounded-full border border-[#444] bg-[radial-gradient(circle_at_30%_20%,#515151,#101010_75%)] font-serif italic text-lg text-[#ddd]"
@@ -27,23 +30,25 @@ export default function App() {
           </a>
           <nav className="flex gap-2 max-[420px]:gap-[5px]" aria-label="Main navigation">
             <a
-              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-[#171717] [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
+              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-panel [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
               href="#about"
             >
               About
             </a>
             <a
-              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-[#171717] [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
+              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-panel [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
               href="#projects"
             >
               Projects
             </a>
             <a
-              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-[#171717] [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
+              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-panel [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
               href="#github-activity"
             >
               GitHub
             </a>
+            <CommandPalette />
+            <Settings />
           </nav>
         </header>
 
@@ -88,7 +93,7 @@ export default function App() {
             <p className="mb-[3px] text-[15px]">
               Get in touch at{' '}
               <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
                 href="mailto:workmail.raghav@gmail.com"
               >
                 workmail.raghav@gmail.com
@@ -97,27 +102,23 @@ export default function App() {
             </p>
             <p className="mt-[3px]">
               <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
                 href="https://github.com/raghavbhati"
               >
                 GitHub
               </a>{' '}
               ·{' '}
               <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
                 href="https://www.linkedin.com/in/raghavbhatirv/"
               >
                 LinkedIn
               </a>{' '}
               ·{' '}
-              <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
-                href="/RaghavBhatiResume.pdf"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Resume ↗
-              </a>
+              <ResumeLink
+                label="Resume ↗"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
+              />
             </p>
           </section>
 
@@ -127,7 +128,7 @@ export default function App() {
             aria-labelledby="experience-title"
           >
             <h2
-              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-[#242424] text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
+              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-tag text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
               id="experience-title"
             >
               Where I've Contributed
@@ -146,7 +147,7 @@ export default function App() {
                 <div className="flex justify-between items-center text-xs text-muted mt-1 max-[680px]:flex-wrap max-[680px]:gap-[5px]">
                   <span>
                     Associate Software Engineer{' '}
-                    <span className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]">
+                    <span className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:text-[#414141]">
                       Chandigarh, India
                     </span>
                   </span>
@@ -261,7 +262,7 @@ export default function App() {
             aria-labelledby="projects-title"
           >
             <h2
-              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-[#242424] text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
+              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-tag text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
               id="projects-title"
             >
               Things I've Built
@@ -311,7 +312,7 @@ export default function App() {
                   <div className="flex flex-wrap gap-1.5">
                     {project.tech.map((tech) => (
                       <span
-                        className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
+                        className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:text-[#414141]"
                         key={tech}
                       >
                         {tech}
@@ -329,7 +330,7 @@ export default function App() {
             aria-labelledby="education-title"
           >
             <h2
-              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-[#242424] text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
+              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-tag text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
               id="education-title"
             >
               Education &amp; Certifications
@@ -438,13 +439,11 @@ export default function App() {
                 >
                   Education
                 </a>
-                <a
+                <ResumeLink
+                  label="Resume ↓"
                   className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
-                  href="/RaghavBhatiResume.pdf"
                   download
-                >
-                  Resume ↓
-                </a>
+                />
                 <a
                   className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
                   href="#learning-log"

@@ -1,242 +1,90 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import Memories from './Memories';
 import { memories } from '../data/memories';
+import type { MemoryEvent } from '../data/memories';
 
-describe('Memories Component - Floating Widget & Modal Timeline', () => {
+const openBoard = () =>
+  fireEvent.click(screen.getByRole('button', { name: 'Open event memories' }));
+const polaroid = (event: MemoryEvent) =>
+  screen.getByRole('button', { name: `${event.label}, ${event.title}` });
+const footer = () => screen.getByRole('dialog').querySelector('footer')!;
+const [clickup, mongodb] = memories;
+
+describe('Memories', () => {
   beforeEach(() => {
     window.location.hash = '';
   });
 
-  test('renders floating folder widget at bottom-right with badge and photos preview', () => {
+  test('shows a folder in the bottom-right corner with the event count', () => {
     const { container } = render(<Memories />);
-    expect(container.querySelector('#memories')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Click to view memories/i })).toBeInTheDocument();
-    expect(screen.getByText('click to view memories')).toBeInTheDocument();
+    expect(container.querySelector('#memories')).toHaveClass('fixed', 'right-6', 'bottom-6');
     expect(screen.getByText('3 events')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  test('clicking folder widget opens modal dialog with connected dots timeline and 3 events', () => {
+  test('pins one polaroid per event, not per photo', () => {
     render(<Memories />);
+    openBoard();
 
-    // Modal initially closed
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-    // Click trigger widget
-    fireEvent.click(screen.getByRole('button', { name: /Click to view memories/i }));
-
-    // Modal is now open
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Memories & Timeline/i })).toBeInTheDocument();
-    expect(screen.getByText('memories, on a string')).toBeInTheDocument();
-
-    // Verify all 3 events are present in the top ribbon and connected list
-    expect(
-      screen.getByRole('button', { name: /Jump to ClickUp Event \(March 2025\)/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Jump to MongoDB Developer Day \(July 2025\)/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Jump to Google Hackathon \(October 2025\)/i })
-    ).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog', { name: 'Event Memories' });
+    memories.forEach((event) => expect(polaroid(event)).toBeInTheDocument());
+    expect(within(dialog).getAllByRole('button', { pressed: false })).toHaveLength(memories.length);
+    expect(screen.getByText('see what it was like')).toBeInTheDocument();
   });
 
-  test('supports defaultOpen prop to render modal open immediately', () => {
+  test('bringing up an event shows its story and every one of its photos', () => {
     render(<Memories defaultOpen />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'ClickUp Event' })).toBeInTheDocument();
+    fireEvent.click(polaroid(mongodb));
+
+    expect(within(footer()).getByText('MongoDB Developer Day')).toBeInTheDocument();
+    expect(within(footer()).getByText(/Jul 2025/)).toBeInTheDocument();
+    const viewer = screen.getByRole('group', { name: 'mongodb, photo 1 of 2' });
+    fireEvent.click(within(viewer).getByRole('button', { name: 'Next photo' }));
+    expect(viewer).toHaveAccessibleName('mongodb, photo 2 of 2');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Put mongodb back' }));
+    expect(within(footer()).getByText('3 events')).toBeInTheDocument();
   });
 
-  test('clicking an event in connected dots ribbon or milestone list switches the active event', () => {
-    render(<Memories defaultOpen />);
+  test('links to the LinkedIn and Twitter posts only when the event has them', () => {
+    const events: MemoryEvent[] = [
+      { ...clickup, twitterUrl: 'https://twitter.com/raghavbhatirv/status/1' },
+      { ...mongodb, linkedInUrl: undefined, twitterUrl: undefined },
+    ];
+    render(<Memories defaultOpen events={events} />);
 
-    // Default active event is ClickUp Event
-    expect(screen.getByRole('heading', { name: 'ClickUp Event' })).toBeInTheDocument();
-    expect(screen.getByText('March 2025')).toBeInTheDocument();
-    expect(screen.getByText(/Modern Engineering Workflows & Team Velocity/i)).toBeInTheDocument();
+    fireEvent.click(polaroid(events[0]));
+    const linkedIn = within(footer()).getByRole('link', { name: 'Check the post on LinkedIn' });
+    const twitter = within(footer()).getByRole('link', { name: 'Check the post on Twitter' });
+    expect(linkedIn).toHaveAttribute('href', clickup.linkedInUrl);
+    expect(twitter).toHaveAttribute('href', 'https://twitter.com/raghavbhatirv/status/1');
+    [linkedIn, twitter].forEach((link) => {
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noreferrer');
+    });
 
-    // Click MongoDB Developer Day
-    fireEvent.click(
-      screen.getByRole('button', { name: /Select event: MongoDB Developer Day \(July 2025\)/i })
-    );
-    expect(screen.getByRole('heading', { name: 'MongoDB Developer Day' })).toBeInTheDocument();
-    expect(screen.getByText('July 2025')).toBeInTheDocument();
-    expect(
-      screen.getByText(/MongoDB Atlas, Vector Search & Generative AI Pipelines/i)
-    ).toBeInTheDocument();
-
-    // Click Google Hackathon via top ribbon
-    fireEvent.click(
-      screen.getByRole('button', { name: /Jump to Google Hackathon \(October 2025\)/i })
-    );
-    expect(screen.getByRole('heading', { name: 'Google Hackathon' })).toBeInTheDocument();
-    expect(screen.getByText('October 2025')).toBeInTheDocument();
-    expect(screen.getByText(/48-Hour Sprint: Rapid AI Prototyping/i)).toBeInTheDocument();
+    fireEvent.click(polaroid(events[1]));
+    expect(within(footer()).queryByRole('link')).not.toBeInTheDocument();
   });
 
-  test('renders scrollable image controls and allows advancing slides', () => {
-    render(<Memories defaultOpen />);
-
-    // In showcase mode, the active event images are rendered
-    const images = screen.getAllByRole('button', { name: /View photo/i });
-    expect(images.length).toBeGreaterThanOrEqual(1);
-
-    const nextBtn = screen.getByRole('button', { name: 'Next image' });
-    const prevBtn = screen.getByRole('button', { name: 'Previous image' });
-
-    // Prev button initially disabled on first image
-    expect(prevBtn).toBeDisabled();
-    expect(nextBtn).toBeEnabled();
-
-    // Click next button
-    fireEvent.click(nextBtn);
-    expect(prevBtn).toBeEnabled();
-
-    // Click previous button
-    fireEvent.click(prevBtn);
-    expect(prevBtn).toBeDisabled();
-  });
-
-  test('renders LinkedIn redirection button for active event with secure attributes', () => {
-    render(<Memories defaultOpen />);
-    const linkedInBtn = screen.getByRole('link', { name: /View LinkedIn post for ClickUp Event/i });
-    expect(linkedInBtn).toBeInTheDocument();
-    expect(linkedInBtn).toHaveAttribute('target', '_blank');
-    expect(linkedInBtn).toHaveAttribute('rel', 'noreferrer');
-    expect(linkedInBtn.getAttribute('href')).toContain('linkedin.com');
-  });
-
-  test('opens lightbox on photo click and supports navigating between photos', () => {
-    render(<Memories defaultOpen />);
-    const photoButtons = screen.getAllByRole('button', { name: /View photo 1 of/i });
-    expect(photoButtons.length).toBeGreaterThan(0);
-
-    // Open lightbox
-    fireEvent.click(photoButtons[0]);
-    const closeBtn = screen.getByRole('button', { name: 'Close photo preview' });
-    expect(closeBtn).toBeInTheDocument();
-    expect(screen.getByText(/Photo 1 of/i)).toBeInTheDocument();
-
-    // Next photo inside lightbox
-    const nextPhotoBtn = screen.getByRole('button', { name: 'Next photo' });
-    expect(nextPhotoBtn).toBeInTheDocument();
-    fireEvent.click(nextPhotoBtn);
-    expect(screen.getByText(/Photo 2 of/i)).toBeInTheDocument();
-
-    // Close lightbox
-    fireEvent.click(closeBtn);
-    expect(screen.queryByRole('button', { name: 'Close photo preview' })).not.toBeInTheDocument();
-  });
-
-  test('category filter pills filter the available events and update active selection', () => {
-    render(<Memories defaultOpen />);
-
-    // Filter to Hackathons
-    fireEvent.click(screen.getByRole('button', { name: 'Hackathons' }));
-    expect(screen.getByRole('heading', { name: 'Google Hackathon' })).toBeInTheDocument();
-    expect(screen.getByText('October 2025')).toBeInTheDocument();
-
-    // Filter to Conferences
-    fireEvent.click(screen.getByRole('button', { name: 'Conferences' }));
-    expect(screen.getByRole('heading', { name: 'ClickUp Event' })).toBeInTheDocument();
-
-    // Reset to All
-    fireEvent.click(screen.getByRole('button', { name: /^All \(/i }));
-    expect(
-      screen.getByRole('button', { name: /Select event: ClickUp Event/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Select event: MongoDB Developer Day/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Select event: Google Hackathon/i })
-    ).toBeInTheDocument();
-  });
-
-  test('toggles view mode between Showcase and All Events stream', () => {
-    render(<Memories defaultOpen />);
-
-    // Toggle to All Events (timeline stream)
-    const allEventsToggle = screen.getByRole('button', { name: 'All Events' });
-    fireEvent.click(allEventsToggle);
-
-    // In All Events mode, all 3 event articles are rendered simultaneously
-    expect(screen.getByRole('heading', { name: 'ClickUp Event' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'MongoDB Developer Day' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Google Hackathon' })).toBeInTheDocument();
-
-    // Toggle back to Showcase mode
-    const showcaseToggle = screen.getByRole('button', { name: 'Showcase' });
-    fireEvent.click(showcaseToggle);
-    expect(screen.getByLabelText('List of events with connected dots')).toBeInTheDocument();
-  });
-
-  test('closes modal via close button, backdrop click, and Escape key', () => {
-    render(<Memories defaultOpen />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-    // Close via close button
-    fireEvent.click(screen.getByRole('button', { name: 'Close memories modal' }));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-    // Reopen via folder button and close via Escape
-    fireEvent.click(screen.getByRole('button', { name: /Click to view memories/i }));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    fireEvent.keyDown(window, { key: 'Escape' });
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-    // Reopen via folder button and close via backdrop click
-    fireEvent.click(screen.getByRole('button', { name: /Click to view memories/i }));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    const dialogBackdrop = screen.getByRole('dialog');
-    fireEvent.click(dialogBackdrop);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
-  test('automatically opens modal if URL hash is #memories', () => {
-    window.location.hash = '#memories';
-    render(<Memories />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Memories & Timeline/i })).toBeInTheDocument();
-  });
-
-  test('opens modal and selects specific event when deep-linked with event hash', () => {
+  test('an event hash opens the board on that event', () => {
     window.location.hash = '#mongodb-2025';
     render(<Memories />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'MongoDB Developer Day' })).toBeInTheDocument();
-    expect(screen.getByText('July 2025')).toBeInTheDocument();
+    expect(polaroid(mongodb)).toHaveAttribute('aria-pressed', 'true');
+    expect(within(footer()).getByText('MongoDB Developer Day')).toBeInTheDocument();
   });
 
-  test('clicking board polaroid card switches active event', () => {
-    render(<Memories defaultOpen />);
-    expect(screen.getByRole('heading', { name: 'ClickUp Event' })).toBeInTheDocument();
-
-    // Click Google Hackathon polaroid on board
-    const googleBoardCard = screen.getByRole('button', {
-      name: /View Google Hackathon \(October 2025\) on board/i,
-    });
-    fireEvent.click(googleBoardCard);
-    expect(screen.getByRole('heading', { name: 'Google Hackathon' })).toBeInTheDocument();
-    expect(screen.getByText('October 2025')).toBeInTheDocument();
-
-    // Click MongoDB polaroid on board
-    const mongoBoardCard = screen.getByRole('button', {
-      name: /View MongoDB Developer Day \(July 2025\) on board/i,
-    });
-    fireEvent.click(mongoBoardCard);
-    expect(screen.getByRole('heading', { name: 'MongoDB Developer Day' })).toBeInTheDocument();
-    expect(screen.getByText('July 2025')).toBeInTheDocument();
-  });
-
-  test('closing modal clears #memories or event hash from window URL', () => {
+  test('closing clears the hash, empties the board and returns focus to the folder', () => {
     window.location.hash = '#memories';
     render(<Memories />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    fireEvent.click(polaroid(clickup));
 
-    const closeBtn = screen.getByRole('button', { name: 'Close memories modal' });
-    fireEvent.click(closeBtn);
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(window.location.hash).toBe('');
+    expect(screen.getByRole('button', { name: 'Open event memories' })).toHaveFocus();
+
+    openBoard();
+    expect(screen.getByText('drop a memory here')).toBeInTheDocument();
   });
 });

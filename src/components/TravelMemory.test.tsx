@@ -1,277 +1,309 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { vi } from 'vitest';
 import TravelMemory from './TravelMemory';
 import { travelMemories } from '../data/travelMemories';
+import type { TravelMemory as TravelMemoryItem } from '../data/travelMemories';
+import { travelAudio } from '../utils/travelAudio';
 
-describe('TravelMemory Component - Bottom-Left Widget & Zigzag Board Modal', () => {
+const openBoard = () =>
+  fireEvent.click(screen.getByRole('button', { name: 'Open travel memories' }));
+const polaroid = (label: string) =>
+  screen.getByRole('button', { name: new RegExp(`^${label},`, 'i') });
+const footer = () => screen.getByRole('dialog').querySelector('footer')!;
+
+describe('TravelMemory', () => {
   beforeEach(() => {
     window.location.hash = '';
+    vi.restoreAllMocks();
   });
 
-  test('renders floating folder widget at bottom-left with title Travel Memory and badge', () => {
+  test('shows a folder in the bottom-left corner with a count, and keeps the board closed', () => {
     const { container } = render(<TravelMemory />);
-    const widget = container.querySelector('#travel-memory');
-    expect(widget).toBeInTheDocument();
-    expect(widget).toHaveClass('bottom-5', 'left-5');
-
-    expect(
-      screen.getByRole('button', { name: /Click to view travel memories/i })
-    ).toBeInTheDocument();
-    expect(screen.getByText('click to view travel memory')).toBeInTheDocument();
-    expect(screen.getByText('Travel Memory')).toBeInTheDocument();
+    expect(container.querySelector('#travel-memory')).toHaveClass('fixed', 'left-6', 'bottom-6');
+    expect(screen.getByRole('button', { name: 'Open travel memories' })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
     expect(screen.getByText('10 places')).toBeInTheDocument();
-  });
-
-  test('clicking widget opens modal dialog with the board on a string and deep black background', () => {
-    render(<TravelMemory />);
-
-    // Initially closed
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-    // Click trigger widget
-    fireEvent.click(screen.getByRole('button', { name: /Click to view travel memories/i }));
-
-    // Modal open
-    const dialog = screen.getByRole('dialog');
-    expect(dialog).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Travel Memory/i })).toBeInTheDocument();
-    expect(screen.getByText('memories, on a string')).toBeInTheDocument();
-    expect(screen.getByText(/THE TRAVEL BOARD · MEMORIES ON A ZIGZAG STRING/i)).toBeInTheDocument();
   });
 
-  test('supports defaultOpen prop to render modal open immediately', () => {
-    render(<TravelMemory defaultOpen />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Travel Memory/i })).toBeInTheDocument();
-  });
+  test('opens the board with every memory pinned around an empty centre card', () => {
+    render(<TravelMemory />);
+    openBoard();
 
-  test('renders all 10 polaroids on the board canvas', () => {
-    render(<TravelMemory defaultOpen />);
-
-    // Check polaroids by label
-    expect(screen.getByRole('button', { name: /View mountains/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View cutting chai/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View alter ego/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View cloudburst/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View sunsets/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View UNO/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View Yes sir/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View forest trail/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View notes & harmony/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /View spiderman/i })).toBeInTheDocument();
-  });
-
-  test('clicking a board polaroid card switches the active memory and updates center card', () => {
-    render(<TravelMemory defaultOpen />);
-
-    // Initial default memory is Rohtang Pass Summit (mountains)
-    expect(screen.getByRole('heading', { name: 'Rohtang Pass Summit' })).toBeInTheDocument();
-
-    // Click "sunsets" polaroid on the board
-    const sunsetsCard = screen.getByRole('button', { name: /View sunsets/i });
-    fireEvent.click(sunsetsCard);
-
-    // Active memory should update to Violet Dusk Horizon
-    expect(screen.getByRole('heading', { name: 'Violet Dusk Horizon' })).toBeInTheDocument();
-    expect(screen.getByText(/Sunset Point, Kasauli Hills/i)).toBeInTheDocument();
-
-    // Click "forest trail" polaroid
-    const forestCard = screen.getByRole('button', { name: /View forest trail/i });
-    fireEvent.click(forestCard);
-
-    expect(screen.getByRole('heading', { name: 'The Deodar Canopy Ride' })).toBeInTheDocument();
-    expect(screen.getByText(/Shimla-Mashobra Pine Sanctuary/i)).toBeInTheDocument();
-  });
-
-  test('center card contains sound and story controls and allows opening lightbox', () => {
-    render(<TravelMemory defaultOpen />);
-
-    expect(screen.getByLabelText('Active memory sound & story hub')).toBeInTheDocument();
-    const exploreBtn = screen.getByRole('button', { name: /View full story for mountains/i });
-    expect(exploreBtn).toBeInTheDocument();
-
-    // Click explore story button to open lightbox
-    fireEvent.click(exploreBtn);
-    expect(screen.getByRole('dialog', { name: 'Travel photo lightbox' })).toBeInTheDocument();
-    expect(
-      screen.getByText(/Freezing altitude, endless peaks, and a summit thumbs up/i)
-    ).toBeInTheDocument();
-  });
-
-  test('toggles ambient sound on and off', () => {
-    render(<TravelMemory defaultOpen />);
-
-    const soundToggle = screen.getByRole('button', { name: /Play ambient soundscape/i });
-    expect(soundToggle).toBeInTheDocument();
-
-    // Turn sound ON
-    fireEvent.click(soundToggle);
-    expect(screen.getByRole('button', { name: /Mute ambient soundscape/i })).toBeInTheDocument();
-    expect(screen.getByText('Sound ON')).toBeInTheDocument();
-
-    // Turn sound OFF
-    fireEvent.click(screen.getByRole('button', { name: /Mute ambient soundscape/i }));
-    expect(screen.getByText('Ambient')).toBeInTheDocument();
-  });
-
-  test('category filter pills filter the visible memories', () => {
-    render(<TravelMemory defaultOpen />);
-
-    // Filter to Mountains
-    fireEvent.click(screen.getByRole('button', { name: 'Mountains' }));
-    const mountainsBtn = screen.getByRole('button', { name: /View mountains/i });
-    expect(mountainsBtn.parentElement).toHaveClass('opacity-100');
-
-    // Switch to Trails
-    fireEvent.click(screen.getByRole('button', { name: 'Trails' }));
-    const trailBtn = screen.getByRole('button', { name: /View forest trail/i });
-    expect(trailBtn.parentElement).toHaveClass('opacity-100');
-
-    // Reset to All
-    fireEvent.click(screen.getByRole('button', { name: /^All \(/i }));
-    expect(screen.getByRole('button', { name: /View spiderman/i }).parentElement).toHaveClass(
-      'opacity-100'
+    const dialog = screen.getByRole('dialog', { name: 'Travel Memory' });
+    expect(within(dialog).getByText('memories, on a string')).toBeInTheDocument();
+    expect(within(dialog).getByText('drop a memory here')).toBeInTheDocument();
+    travelMemories.forEach((memory) =>
+      expect(polaroid(memory.label)).toHaveAttribute('aria-pressed', 'false')
     );
   });
 
-  test('toggles view mode between The Board and Travel Journal feed', () => {
+  test('ties the polaroids together with sagging strings', () => {
     render(<TravelMemory defaultOpen />);
-
-    // Toggle to Travel Journal
-    const journalToggle = screen.getByRole('button', { name: 'Travel Journal' });
-    fireEvent.click(journalToggle);
-
-    // In Journal mode, articles for destinations are rendered
-    expect(screen.getByRole('heading', { name: 'Rohtang Pass Summit' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Violet Dusk Horizon' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'The Deodar Canopy Ride' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Parvati Notes & Harmony' })).toBeInTheDocument();
-
-    // Toggle back to The Board
-    const boardToggle = screen.getByRole('button', { name: 'The Board' });
-    fireEvent.click(boardToggle);
-    expect(screen.getByText(/THE TRAVEL BOARD · MEMORIES ON A ZIGZAG STRING/i)).toBeInTheDocument();
+    const strings = screen.getByRole('dialog').querySelectorAll('svg path');
+    // 9 links around the ring, plus every other polaroid tied into the centre.
+    expect(strings).toHaveLength(14);
+    strings.forEach((path) => expect(path.getAttribute('d')).toMatch(/^M [\d.-]+ [\d.-]+ C /));
   });
 
-  test('navigates next and previous items inside the lightbox and closes on close button', () => {
+  test('clicking a polaroid puts it on the centre card, tells its story, and plays its sound', () => {
+    const play = vi.spyOn(travelAudio, 'play');
     render(<TravelMemory defaultOpen />);
 
-    // Open lightbox via Quick Details button
-    fireEvent.click(screen.getByRole('button', { name: /Full Photo & Story/i }));
-    expect(screen.getByRole('dialog', { name: 'Travel photo lightbox' })).toBeInTheDocument();
+    fireEvent.click(polaroid('sunsets'));
 
-    // Next item in lightbox
-    const nextBtn = screen.getByRole('button', { name: 'Next photo' });
-    fireEvent.click(nextBtn);
-    expect(
-      screen.getByText(/Cardamom chai toasts in freezing mountain mornings/i)
-    ).toBeInTheDocument();
-
-    // Previous item in lightbox
-    const prevBtn = screen.getByRole('button', { name: 'Previous photo' });
-    fireEvent.click(prevBtn);
-    expect(screen.getByText(/Freezing altitude, endless peaks/i)).toBeInTheDocument();
-
-    // Close lightbox
-    const closeBtn = screen.getByRole('button', { name: 'Close photo preview' });
-    fireEvent.click(closeBtn);
-    expect(screen.queryByRole('dialog', { name: 'Travel photo lightbox' })).not.toBeInTheDocument();
+    expect(polaroid('sunsets')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Put sunsets back' })).toBeInTheDocument();
+    expect(within(footer()).getByText('Violet Dusk Horizon')).toBeInTheDocument();
+    expect(within(footer()).getByText(/Sunset Point, Kasauli Hills/)).toBeInTheDocument();
+    expect(play).toHaveBeenLastCalledWith('wind');
+    expect(screen.queryByText('drop a memory here')).not.toBeInTheDocument();
   });
 
-  test('closes modal via close button, backdrop click, and Escape key', () => {
+  test('a new memory replaces the one on the centre card', () => {
+    const play = vi.spyOn(travelAudio, 'play');
     render(<TravelMemory defaultOpen />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
 
-    // Close via close button
-    fireEvent.click(screen.getByRole('button', { name: 'Close travel memory modal' }));
+    fireEvent.click(polaroid('sunsets'));
+    fireEvent.click(polaroid('UNO'));
+
+    expect(polaroid('sunsets')).toHaveAttribute('aria-pressed', 'false');
+    expect(polaroid('UNO')).toHaveAttribute('aria-pressed', 'true');
+    expect(within(footer()).getByText('UNO Under the Stars')).toBeInTheDocument();
+    expect(play).toHaveBeenLastCalledWith('campfire');
+  });
+
+  test('putting a memory back empties the centre card and stops the sound', () => {
+    const stop = vi.spyOn(travelAudio, 'stop');
+    render(<TravelMemory defaultOpen />);
+
+    fireEvent.click(polaroid('mountains'));
+    stop.mockClear();
+    fireEvent.click(screen.getByRole('button', { name: 'Put mountains back' }));
+
+    expect(stop).toHaveBeenCalled();
+    expect(screen.getByText('drop a memory here')).toBeInTheDocument();
+    expect(polaroid('mountains')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('clicking the memory that is already up puts it back', () => {
+    render(<TravelMemory defaultOpen />);
+    fireEvent.click(polaroid('mountains'));
+    fireEvent.click(polaroid('mountains'));
+    expect(screen.getByText('drop a memory here')).toBeInTheDocument();
+  });
+
+  test('dragging a polaroid onto the centre card brings it up; dropping it elsewhere does not', () => {
+    render(<TravelMemory defaultOpen />);
+    const card = screen.getByText('drop a memory here').closest('div.absolute')!;
+    vi.spyOn(card, 'getBoundingClientRect').mockReturnValue({
+      left: 400,
+      right: 600,
+      top: 200,
+      bottom: 400,
+      width: 200,
+      height: 200,
+      x: 400,
+      y: 200,
+      toJSON: () => ({}),
+    });
+
+    const chai = polaroid('cutting chai');
+    fireEvent.pointerDown(chai, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(chai, { pointerId: 1, clientX: 300, clientY: 150 });
+    fireEvent.pointerUp(chai, { pointerId: 1, clientX: 300, clientY: 150 });
+    fireEvent.click(chai);
+    expect(chai).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.pointerDown(chai, { button: 0, pointerId: 2, clientX: 300, clientY: 150 });
+    fireEvent.pointerMove(chai, { pointerId: 2, clientX: 500, clientY: 300 });
+    fireEvent.pointerUp(chai, { pointerId: 2, clientX: 500, clientY: 300 });
+    fireEvent.click(chai);
+    expect(chai).toHaveAttribute('aria-pressed', 'true');
+    expect(within(footer()).getByText('Cutting Chai at Old Manali')).toBeInTheDocument();
+  });
+
+  test('a photo flung off the board stays on its edge, and the next drag starts from there', () => {
+    render(<TravelMemory defaultOpen />);
+    const uno = polaroid('UNO');
+    const left = () => parseFloat(uno.style.transform.slice('translate('.length));
+
+    fireEvent.pointerDown(uno, { button: 0, pointerId: 1, clientX: 500, clientY: 300 });
+    fireEvent.pointerMove(uno, { pointerId: 1, clientX: -5000, clientY: 300 });
+    fireEvent.pointerUp(uno, { pointerId: 1, clientX: -5000, clientY: 300 });
+    expect(left()).toBeCloseTo(0);
+
+    fireEvent.pointerDown(uno, { button: 0, pointerId: 2, clientX: 500, clientY: 300 });
+    fireEvent.pointerMove(uno, { pointerId: 2, clientX: 530, clientY: 300 });
+    expect(left()).toBeCloseTo(30);
+  });
+
+  test('the sound button mutes, and later memories stay quiet until it is turned back on', () => {
+    const play = vi.spyOn(travelAudio, 'play');
+    render(<TravelMemory defaultOpen />);
+
+    fireEvent.click(polaroid('mountains'));
+    fireEvent.click(screen.getByRole('button', { name: 'Mute sound' }));
+    play.mockClear();
+
+    fireEvent.click(polaroid('UNO'));
+    expect(play).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Play sound' }));
+    expect(play).toHaveBeenLastCalledWith('campfire');
+    expect(screen.getByRole('button', { name: 'Mute sound' })).toBeInTheDocument();
+  });
+
+  test('stops the sound while the tab is hidden', () => {
+    const stop = vi.spyOn(travelAudio, 'stop');
+    const play = vi.spyOn(travelAudio, 'play');
+    render(<TravelMemory defaultOpen />);
+    fireEvent.click(polaroid('mountains'));
+    stop.mockClear();
+    play.mockClear();
+
+    Object.defineProperty(document, 'hidden', { value: true, configurable: true });
+    fireEvent(document, new Event('visibilitychange'));
+    expect(stop).toHaveBeenCalled();
+
+    Object.defineProperty(document, 'hidden', { value: false, configurable: true });
+    fireEvent(document, new Event('visibilitychange'));
+    expect(play).toHaveBeenLastCalledWith('wind');
+  });
+
+  test('closes with the close button, Escape and a backdrop click, stopping any sound', () => {
+    const stop = vi.spyOn(travelAudio, 'stop');
+    render(<TravelMemory />);
+
+    openBoard();
+    fireEvent.click(polaroid('mountains'));
+    fireEvent.click(screen.getByRole('button', { name: 'Close travel memories' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(stop).toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Open travel memories' })).toHaveFocus();
+
+    openBoard();
+    expect(screen.getByText('drop a memory here')).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
-    // Reopen via folder button and close via Escape
-    fireEvent.click(screen.getByRole('button', { name: /Click to view travel memories/i }));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    fireEvent.keyDown(window, { key: 'Escape' });
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-
-    // Reopen via folder button and close via backdrop click
-    fireEvent.click(screen.getByRole('button', { name: /Click to view travel memories/i }));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    const dialogBackdrop = screen.getByRole('dialog');
-    fireEvent.click(dialogBackdrop);
+    openBoard();
+    fireEvent.click(screen.getByRole('dialog'));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  test('automatically opens modal if URL hash is #travel-memory', () => {
+  test('clicks inside the board do not close it', () => {
+    render(<TravelMemory defaultOpen />);
+    fireEvent.click(screen.getByText('memories, on a string'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  test('locks page scroll while open', () => {
+    render(<TravelMemory />);
+    openBoard();
+    expect(document.body.style.overflow).toBe('hidden');
+    fireEvent.click(screen.getByRole('button', { name: 'Close travel memories' }));
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  test('#travel-memory opens the board and closing clears the hash', () => {
     window.location.hash = '#travel-memory';
     render(<TravelMemory />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Travel Memory/i })).toBeInTheDocument();
-  });
+    expect(screen.getByRole('dialog', { name: 'Travel Memory' })).toBeInTheDocument();
 
-  test('opens modal and selects specific travel memory when deep-linked with hash', () => {
-    window.location.hash = '#travel-sunsets';
-    render(<TravelMemory />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Violet Dusk Horizon' })).toBeInTheDocument();
-  });
-
-  test('closing modal clears #travel-memory hash from window URL', () => {
-    window.location.hash = '#travel-memory';
-    render(<TravelMemory />);
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-    const closeBtn = screen.getByRole('button', { name: 'Close travel memory modal' });
-    fireEvent.click(closeBtn);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close travel memories' }));
     expect(window.location.hash).toBe('');
   });
 
-  test('renders sequential zigzag badges #01 through #10 on the board nodes', () => {
-    render(<TravelMemory defaultOpen />);
-    for (let i = 1; i <= 10; i++) {
-      const badge = `#${String(i).padStart(2, '0')}`;
-      expect(screen.getByText(badge)).toBeInTheDocument();
-    }
-  });
-
-  test('generates zigzag SVG string paths connecting items one by one across the canvas', () => {
-    const { container } = render(<TravelMemory defaultOpen />);
-    const svgPaths = container.querySelectorAll(
-      'svg.travel-string-glow path[stroke*="travelPinkString"]'
-    );
-    // 9 zigzag segments connecting 10 items one by one
-    expect(svgPaths.length).toBe(9);
-
-    // Each path segment should be a valid cubic Bézier curve starting with M and containing C
-    svgPaths.forEach((path) => {
-      const d = path.getAttribute('d');
-      expect(d).toBeTruthy();
-      expect(d?.startsWith('M ')).toBe(true);
-      expect(d?.includes(' C ')).toBe(true);
-    });
-  });
-
-  test('pauses audio playback when document tab becomes hidden and resumes when visible', () => {
-    render(<TravelMemory defaultOpen />);
-
-    // Turn sound ON
-    const soundToggle = screen.getByRole('button', { name: /Play ambient soundscape/i });
-    fireEvent.click(soundToggle);
-    expect(screen.getByText('Sound ON')).toBeInTheDocument();
-
-    // Mock document.hidden = true
-    Object.defineProperty(document, 'hidden', { value: true, configurable: true });
-    fireEvent(document, new Event('visibilitychange'));
-
-    // Mock document.hidden = false
-    Object.defineProperty(document, 'hidden', { value: false, configurable: true });
-    fireEvent(document, new Event('visibilitychange'));
-
-    // Still Sound ON
-    expect(screen.getByText('Sound ON')).toBeInTheDocument();
-  });
-
-  test('provides responsive trigger widget with both desktop and mobile text variants', () => {
+  test('a memory hash opens the board on that memory, without starting sound', () => {
+    const play = vi.spyOn(travelAudio, 'play');
+    window.location.hash = '#travel-sunsets';
     render(<TravelMemory />);
-    expect(screen.getByText('click to view travel memory')).toBeInTheDocument();
-    expect(screen.getByText('travel memory')).toBeInTheDocument();
+
+    expect(polaroid('sunsets')).toHaveAttribute('aria-pressed', 'true');
+    expect(within(footer()).getByText('Violet Dusk Horizon')).toBeInTheDocument();
+    expect(play).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Play sound' })).toBeInTheDocument();
+  });
+
+  describe('with several photos and an Instagram post', () => {
+    const [base] = travelMemories;
+    const trip: TravelMemoryItem = {
+      ...base,
+      id: 'travel-spiti',
+      label: 'spiti',
+      photos: [
+        { src: '/travel/spiti-1.jpg', alt: 'Key Monastery' },
+        { src: '/travel/spiti-2.jpg', alt: 'Chandratal lake' },
+        { src: '/travel/spiti-3.jpg', alt: 'Kaza at night' },
+      ],
+      instagramUrl: 'https://www.instagram.com/p/spiti/',
+    };
+    const memories = [trip, travelMemories[1]];
+    const viewer = () => screen.getByRole('group', { name: /^spiti, photo/ });
+
+    test('the centre card steps through every photo of the memory, wrapping around', () => {
+      render(<TravelMemory defaultOpen memories={memories} />);
+      fireEvent.click(polaroid('spiti'));
+      expect(viewer()).toHaveAccessibleName('spiti, photo 1 of 3');
+      expect(within(viewer()).getByText('1/3')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Next photo' }));
+      expect(viewer()).toHaveAccessibleName('spiti, photo 2 of 3');
+      fireEvent.click(screen.getByRole('button', { name: 'Next photo' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Next photo' }));
+      expect(viewer()).toHaveAccessibleName('spiti, photo 1 of 3');
+      fireEvent.click(screen.getByRole('button', { name: 'Previous photo' }));
+      expect(viewer()).toHaveAccessibleName('spiti, photo 3 of 3');
+      // Only the photo on show is exposed to assistive tech.
+      expect(within(viewer()).getByRole('img')).toHaveAttribute('alt', 'Kaza at night');
+    });
+
+    test('arrow keys and swipes move between photos too', () => {
+      render(<TravelMemory defaultOpen memories={memories} />);
+      fireEvent.click(polaroid('spiti'));
+
+      fireEvent.keyDown(viewer(), { key: 'ArrowRight' });
+      expect(viewer()).toHaveAccessibleName('spiti, photo 2 of 3');
+      fireEvent.keyDown(viewer(), { key: 'ArrowLeft' });
+      expect(viewer()).toHaveAccessibleName('spiti, photo 1 of 3');
+
+      fireEvent.pointerDown(viewer(), { clientX: 300 });
+      fireEvent.pointerUp(viewer(), { clientX: 200 });
+      expect(viewer()).toHaveAccessibleName('spiti, photo 2 of 3');
+      fireEvent.pointerDown(viewer(), { clientX: 200 });
+      fireEvent.pointerUp(viewer(), { clientX: 190 });
+      expect(viewer()).toHaveAccessibleName('spiti, photo 2 of 3');
+    });
+
+    test('each memory starts on its first photo', () => {
+      render(<TravelMemory defaultOpen memories={memories} />);
+      fireEvent.click(polaroid('spiti'));
+      fireEvent.click(screen.getByRole('button', { name: 'Next photo' }));
+      fireEvent.click(polaroid(travelMemories[1].label));
+      fireEvent.click(polaroid('spiti'));
+      expect(viewer()).toHaveAccessibleName('spiti, photo 1 of 3');
+    });
+
+    test('a single photo needs no carousel controls', () => {
+      render(<TravelMemory defaultOpen memories={memories} />);
+      fireEvent.click(polaroid(travelMemories[1].label));
+      expect(screen.queryByRole('button', { name: 'Next photo' })).not.toBeInTheDocument();
+      expect(screen.queryByText('1/1')).not.toBeInTheDocument();
+    });
+
+    test('links to the Instagram post only when the memory has one', () => {
+      render(<TravelMemory defaultOpen memories={memories} />);
+      fireEvent.click(polaroid('spiti'));
+      const link = within(footer()).getByRole('link', { name: 'Check the post on Instagram' });
+      expect(link).toHaveAttribute('href', 'https://www.instagram.com/p/spiti/');
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noreferrer');
+
+      fireEvent.click(polaroid(travelMemories[1].label));
+      expect(within(footer()).queryByRole('link')).not.toBeInTheDocument();
+    });
   });
 });
