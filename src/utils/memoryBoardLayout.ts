@@ -13,6 +13,8 @@ export interface Slot extends Point {
   rotate: number;
 }
 
+export type CenterRatio = '3:4' | '1:1' | 'landscape';
+
 export interface BoardLayout {
   /** `ring` circles the centre card (desktop); `stack` flows below it (phones). */
   mode: 'ring' | 'stack';
@@ -135,7 +137,12 @@ function spread(slots: Slot[], centre: BoardLayout['centre'], width: number, hei
   }
 }
 
-function ringLayout(count: number, width: number, height: number): BoardLayout {
+function ringLayout(
+  count: number,
+  width: number,
+  height: number,
+  centerRatio: CenterRatio = 'landscape'
+): BoardLayout {
   const scale = clamp(Math.min(width / 1100, height / 620), 0.55, 1);
   // Fewer photos get more room each, so a small board doesn't look empty.
   const base = 140 * scale * (count <= 3 ? 1.35 : count <= 6 ? 1.25 : 1);
@@ -158,8 +165,30 @@ function ringLayout(count: number, width: number, height: number): BoardLayout {
       y: cy + ry * Math.sin(angle) + ny * scale,
     };
   });
-  const centreHeight = clamp(Math.min(width * 0.18, height * 0.36), 140, 230);
-  const centre = { x: cx, y: cy, width: centreHeight * 1.3, height: centreHeight };
+  let centreWidth: number;
+  let centreHeight: number;
+
+  if (centerRatio === '3:4') {
+    centreHeight = clamp(
+      Math.min(width * 0.24, height * (count <= 3 ? 0.46 : 0.35)),
+      150,
+      count <= 3 ? 310 : 230
+    );
+    centreWidth = Math.round(centreHeight * 0.75);
+  } else if (centerRatio === '1:1') {
+    centreHeight = clamp(
+      Math.min(width * 0.22, height * (count <= 3 ? 0.4 : 0.3)),
+      140,
+      count <= 3 ? 280 : 210
+    );
+    centreWidth = centreHeight;
+  } else {
+    // Default 1.3:1 landscape card
+    centreHeight = clamp(Math.min(width * 0.18, height * 0.36), 140, 230);
+    centreWidth = Math.round(centreHeight * 1.3);
+  }
+
+  const centre = { x: cx, y: cy, width: centreWidth, height: centreHeight };
   spread(slots, centre, width, height);
   const links: Array<[number, number]> = [];
   for (let i = 0; i < count; i++) {
@@ -169,10 +198,25 @@ function ringLayout(count: number, width: number, height: number): BoardLayout {
   return { mode: 'ring', width, height, centre, slots, links };
 }
 
-function stackLayout(count: number, width: number): BoardLayout {
+function stackLayout(
+  count: number,
+  width: number,
+  centerRatio: CenterRatio = 'landscape'
+): BoardLayout {
   const pad = 16;
-  const centreWidth = Math.min(width - pad * 2, 360);
-  const centreHeight = centreWidth * 0.75;
+  let centreWidth: number;
+  let centreHeight: number;
+
+  if (centerRatio === '3:4') {
+    centreWidth = Math.min(width - pad * 2, 300);
+    centreHeight = Math.round(centreWidth * (4 / 3));
+  } else if (centerRatio === '1:1') {
+    centreWidth = Math.min(width - pad * 2, 340);
+    centreHeight = centreWidth;
+  } else {
+    centreWidth = Math.min(width - pad * 2, 360);
+    centreHeight = Math.round(centreWidth * 0.75);
+  }
   const cols = width >= 460 ? 3 : 2;
   const cell = (width - pad * 2) / cols;
   const shapes = Array.from({ length: count }, (_, index) => shape(index, cell * 0.72));
@@ -198,10 +242,15 @@ function stackLayout(count: number, width: number): BoardLayout {
   };
 }
 
-export function layoutBoard(count: number, width: number, height: number): BoardLayout {
+export function layoutBoard(
+  count: number,
+  width: number,
+  height: number,
+  centerRatio: CenterRatio = 'landscape'
+): BoardLayout {
   return width < STACK_MAX_WIDTH || height < STACK_MAX_HEIGHT
-    ? stackLayout(count, width)
-    : ringLayout(count, width, height);
+    ? stackLayout(count, width, centerRatio)
+    : ringLayout(count, width, height, centerRatio);
 }
 
 /** A string pinned at both ends, sagging under its own weight. */

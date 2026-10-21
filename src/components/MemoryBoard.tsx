@@ -8,7 +8,7 @@ import {
   polaroidHeight,
   stringPath,
 } from '../utils/memoryBoardLayout';
-import type { Point } from '../utils/memoryBoardLayout';
+import type { CenterRatio, Point } from '../utils/memoryBoardLayout';
 
 export interface BoardImage {
   src: string;
@@ -44,6 +44,10 @@ interface MemoryBoardProps<T extends BoardItem> {
   renderDetails: (item: T) => ReactNode;
   /** Extra overlay on the centre card, next to the caption. */
   renderBadge?: (item: T) => ReactNode;
+  /** Aspect ratio for the centre memory card. Defaults to 'landscape'. */
+  centerRatio?: CenterRatio;
+  /** Whether to show a toggle button to switch between 3:4 and 1:1 on the centre card. */
+  allowRatioToggle?: boolean;
 }
 
 interface Drag {
@@ -99,10 +103,14 @@ function PhotoViewer({
   item,
   badge,
   onEject,
+  ratio,
+  onToggleRatio,
 }: {
   item: BoardItem;
   badge?: ReactNode;
   onEject: () => void;
+  ratio?: CenterRatio;
+  onToggleRatio?: () => void;
 }) {
   const [index, setIndex] = useState(0);
   const swipeFrom = useRef<number | null>(null);
@@ -140,7 +148,7 @@ function PhotoViewer({
             key={`${photo.src}-${photoIndex}`}
             image={photo}
             hidden={photoIndex !== index}
-            className="block h-full w-full shrink-0 object-cover"
+            className="block h-full w-full shrink-0 object-contain"
           />
         ))}
       </div>
@@ -180,7 +188,18 @@ function PhotoViewer({
         <span className="truncate font-serif text-lg italic leading-none text-white">
           {item.label}
         </span>
-        <span className="flex shrink-0 items-center gap-2 text-white">
+        <span className="pointer-events-auto flex shrink-0 items-center gap-2 text-white">
+          {onToggleRatio && ratio && (
+            <button
+              type="button"
+              onClick={onToggleRatio}
+              title={`Switch aspect ratio (current: ${ratio})`}
+              aria-label={`Switch aspect ratio to ${ratio === '3:4' ? '1:1' : '3:4'}`}
+              className="cursor-pointer rounded-full border border-white/25 bg-black/40 px-2 py-0.5 font-mono text-[10px] text-white/90 backdrop-blur-sm transition-colors hover:border-white/50 hover:bg-black/70 hover:text-white"
+            >
+              {ratio}
+            </button>
+          )}
           {badge}
           {count > 1 && (
             <span className="font-mono text-[10px] text-white/80">
@@ -273,6 +292,8 @@ export default function MemoryBoard<T extends BoardItem>({
   onClose,
   renderDetails,
   renderBadge,
+  centerRatio = 'landscape',
+  allowRatioToggle = false,
 }: MemoryBoardProps<T>) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -285,8 +306,17 @@ export default function MemoryBoard<T extends BoardItem>({
   // The photo moved last sits on top of its neighbours.
   const [raisedId, setRaisedId] = useState<string | null>(null);
   const [overCentre, setOverCentre] = useState(false);
+  const [ratio, setRatio] = useState<CenterRatio>(centerRatio);
 
-  const layout = layoutBoard(items.length, size.width, size.height);
+  useEffect(() => {
+    setRatio(centerRatio);
+  }, [centerRatio]);
+
+  const toggleRatio = allowRatioToggle
+    ? () => setRatio((prev) => (prev === '3:4' ? '1:1' : '3:4'))
+    : undefined;
+
+  const layout = layoutBoard(items.length, size.width, size.height, ratio);
   const active = items.find((item) => item.id === activeId) ?? null;
   const { centre } = layout;
 
@@ -506,6 +536,8 @@ export default function MemoryBoard<T extends BoardItem>({
                   item={active}
                   badge={renderBadge?.(active)}
                   onEject={onEject}
+                  ratio={ratio}
+                  onToggleRatio={toggleRatio}
                 />
               ) : (
                 <div

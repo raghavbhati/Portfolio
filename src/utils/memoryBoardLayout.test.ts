@@ -60,6 +60,54 @@ describe('layoutBoard', () => {
     }
   );
 
+  test.each(boards.flatMap(([w, h]) => [3, 6].map((n) => [n, w, h])))(
+    '3:4 portrait ring of %i on %ix%i keeps every polaroid on board and off the card',
+    (count, width, height) => {
+      const layout = layoutBoard(count, width, height, '3:4');
+      expect(layout.mode).toBe('ring');
+      const { centre } = layout;
+      expect(centre.width / centre.height).toBeCloseTo(0.75, 1);
+      const card = {
+        left: centre.x - centre.width / 2,
+        right: centre.x + centre.width / 2,
+        top: centre.y - centre.height / 2,
+        bottom: centre.y + centre.height / 2,
+      };
+      layout.slots.forEach((slot) => {
+        const b = box(slot);
+        expect(b.left).toBeGreaterThanOrEqual(0);
+        expect(b.top).toBeGreaterThanOrEqual(0);
+        expect(b.right).toBeLessThanOrEqual(width);
+        expect(b.bottom).toBeLessThanOrEqual(height);
+        expect(overlap({ ...b, bottom: b.bottom - CAPTION }, card)).toBe(0);
+      });
+    }
+  );
+
+  test.each(boards.flatMap(([w, h]) => [3, 6].map((n) => [n, w, h])))(
+    '1:1 square ring of %i on %ix%i keeps every polaroid on board and off the card',
+    (count, width, height) => {
+      const layout = layoutBoard(count, width, height, '1:1');
+      expect(layout.mode).toBe('ring');
+      const { centre } = layout;
+      expect(centre.width).toBe(centre.height);
+      const card = {
+        left: centre.x - centre.width / 2,
+        right: centre.x + centre.width / 2,
+        top: centre.y - centre.height / 2,
+        bottom: centre.y + centre.height / 2,
+      };
+      layout.slots.forEach((slot) => {
+        const b = box(slot);
+        expect(b.left).toBeGreaterThanOrEqual(0);
+        expect(b.top).toBeGreaterThanOrEqual(0);
+        expect(b.right).toBeLessThanOrEqual(width);
+        expect(b.bottom).toBeLessThanOrEqual(height);
+        expect(overlap({ ...b, bottom: b.bottom - CAPTION }, card)).toBe(0);
+      });
+    }
+  );
+
   test('strings run along the ring and every other polaroid ties into the centre', () => {
     const { links } = layoutBoard(10, 1180, 660);
     expect(links.filter(([, to]) => to !== CENTRE)).toHaveLength(9);

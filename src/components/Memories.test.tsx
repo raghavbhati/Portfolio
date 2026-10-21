@@ -36,11 +36,11 @@ describe('Memories', () => {
     render(<Memories defaultOpen />);
     fireEvent.click(polaroid(mongodb));
 
-    expect(within(footer()).getByText('MongoDB Developer Day')).toBeInTheDocument();
+    expect(within(footer()).getByText('MongoDB.local Delhi')).toBeInTheDocument();
     expect(within(footer()).getByText(/Jul 2025/)).toBeInTheDocument();
-    const viewer = screen.getByRole('group', { name: 'mongodb, photo 1 of 2' });
+    const viewer = screen.getByRole('group', { name: 'mongodb, photo 1 of 3' });
     fireEvent.click(within(viewer).getByRole('button', { name: 'Next photo' }));
-    expect(viewer).toHaveAccessibleName('mongodb, photo 2 of 2');
+    expect(viewer).toHaveAccessibleName('mongodb, photo 2 of 3');
 
     fireEvent.click(screen.getByRole('button', { name: 'Put mongodb back' }));
     expect(within(footer()).getByText('3 events')).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('Memories', () => {
     window.location.hash = '#mongodb-2025';
     render(<Memories />);
     expect(polaroid(mongodb)).toHaveAttribute('aria-pressed', 'true');
-    expect(within(footer()).getByText('MongoDB Developer Day')).toBeInTheDocument();
+    expect(within(footer()).getByText('MongoDB.local Delhi')).toBeInTheDocument();
   });
 
   test('closing clears the hash, empties the board and returns focus to the folder', () => {

@@ -45,6 +45,8 @@ export default function Memories({ defaultOpen = false, events = memories }: Mem
           closeLabel="Close event memories"
           items={events}
           activeId={activeId}
+          centerRatio="3:4"
+          allowRatioToggle
           describe={(event) => `${event.label}, ${event.title}`}
           onActivate={(event) => setActiveId(event.id)}
           onEject={() => setActiveId(null)}
