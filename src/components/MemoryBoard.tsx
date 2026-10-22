@@ -103,8 +103,6 @@ function PhotoViewer({
   item,
   badge,
   onEject,
-  ratio,
-  onToggleRatio,
 }: {
   item: BoardItem;
   badge?: ReactNode;
@@ -122,7 +120,7 @@ function PhotoViewer({
       role="group"
       aria-roledescription="carousel"
       aria-label={`${item.label}, photo ${index + 1} of ${count}`}
-      className="memory-pop group/viewer relative m-0 h-full w-full overflow-hidden rounded-[16px] bg-black shadow-[0_28px_70px_rgba(0,0,0,0.55)] ring-1 ring-string/70"
+      className="memory-pop group/viewer relative m-0 h-full w-full overflow-hidden rounded-[18px] bg-black shadow-[0_32px_90px_rgba(0,0,0,0.75),0_0_40px_rgba(251,100,116,0.25)] ring-2 ring-string/90 [body[data-theme=light]_&]:ring-string [body[data-theme=light]_&]:shadow-[0_32px_70px_rgba(0,0,0,0.35),0_0_35px_rgba(227,84,105,0.22)]"
       onKeyDown={(event) => {
         if (count < 2 || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
         event.preventDefault();
@@ -148,7 +146,7 @@ function PhotoViewer({
             key={`${photo.src}-${photoIndex}`}
             image={photo}
             hidden={photoIndex !== index}
-            className="block h-full w-full shrink-0 object-contain"
+            className="block h-full w-full shrink-0 object-cover object-center"
           />
         ))}
       </div>
@@ -156,14 +154,16 @@ function PhotoViewer({
       {count > 1 && (
         <>
           <div
-            className="pointer-events-none absolute top-[25px] right-12 left-3 flex gap-1"
+            className="pointer-events-none absolute top-2 inset-x-3.5 z-10 flex gap-1"
             aria-hidden="true"
           >
             {item.photos.map((photo, photoIndex) => (
               <span
                 key={`${photo.src}-${photoIndex}`}
                 className={`h-[2px] flex-1 rounded-full transition-colors ${
-                  photoIndex === index ? 'bg-white' : 'bg-white/35'
+                  photoIndex === index
+                    ? 'bg-white shadow-[0_1px_3px_rgba(0,0,0,0.8)]'
+                    : 'bg-white/35'
                 }`}
               />
             ))}
@@ -184,25 +184,14 @@ function PhotoViewer({
         </>
       )}
 
-      <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/75 via-black/25 to-transparent px-3 pt-10 pb-2.5">
-        <span className="truncate font-serif text-lg italic leading-none text-white">
+      <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/85 via-black/35 to-transparent px-4 pt-12 pb-3.5">
+        <span className="truncate font-serif text-xl italic leading-tight text-white drop-shadow-sm">
           {item.label}
         </span>
         <span className="pointer-events-auto flex shrink-0 items-center gap-2 text-white">
-          {onToggleRatio && ratio && (
-            <button
-              type="button"
-              onClick={onToggleRatio}
-              title={`Switch aspect ratio (current: ${ratio})`}
-              aria-label={`Switch aspect ratio to ${ratio === '3:4' ? '1:1' : '3:4'}`}
-              className="cursor-pointer rounded-full border border-white/25 bg-black/40 px-2 py-0.5 font-mono text-[10px] text-white/90 backdrop-blur-sm transition-colors hover:border-white/50 hover:bg-black/70 hover:text-white"
-            >
-              {ratio}
-            </button>
-          )}
           {badge}
           {count > 1 && (
-            <span className="font-mono text-[10px] text-white/80">
+            <span className="rounded-full border border-white/15 bg-black/50 px-2 py-0.5 font-mono text-[10px] text-white/90 backdrop-blur-sm">
               {index + 1}/{count}
             </span>
           )}
@@ -212,7 +201,7 @@ function PhotoViewer({
         type="button"
         onClick={onEject}
         aria-label={`Put ${item.label} back`}
-        className="absolute top-3 right-3 grid h-7 w-7 cursor-pointer place-items-center rounded-full border-0 bg-black/55 text-sm leading-none text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+        className="absolute top-3.5 right-3.5 z-10 grid h-7 w-7 cursor-pointer place-items-center rounded-full border-0 bg-black/55 text-sm leading-none text-white backdrop-blur-sm transition-colors hover:bg-black/80"
       >
         ×
       </button>
@@ -520,7 +509,7 @@ export default function MemoryBoard<T extends BoardItem>({
 
             <div
               ref={centreRef}
-              className={`absolute z-20 transition-transform duration-200 ${
+              className={`absolute transition-transform duration-200 ${active ? 'z-25' : 'z-20'} ${
                 overCentre ? 'scale-[1.04]' : ''
               }`}
               style={{
@@ -585,6 +574,10 @@ export default function MemoryBoard<T extends BoardItem>({
                     isDragging
                       ? 'z-30 cursor-grabbing'
                       : `${item.id === raisedId ? 'z-[15]' : 'z-10'} cursor-grab`
+                  } ${
+                    active && !isActive
+                      ? 'opacity-65 saturate-[0.8] hover:opacity-100 hover:saturate-100 transition-all duration-300'
+                      : 'opacity-100'
                   }`}
                   style={{
                     width: slot.width,

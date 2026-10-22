@@ -144,8 +144,8 @@ function ringLayout(
   centerRatio: CenterRatio = 'landscape'
 ): BoardLayout {
   const scale = clamp(Math.min(width / 1100, height / 620), 0.55, 1);
-  // Fewer photos get more room each, so a small board doesn't look empty.
-  const base = 140 * scale * (count <= 3 ? 1.35 : count <= 6 ? 1.25 : 1);
+  // Keep polaroids balanced so the centre showcase card remains the dominant hero.
+  const base = 140 * scale * (count <= 3 ? 1.15 : count <= 6 ? 1.25 : 1);
   const cx = width / 2;
   const cy = height / 2;
   // Small boards start on the left so their few photos spread across the wide axis.
@@ -170,21 +170,25 @@ function ringLayout(
 
   if (centerRatio === '3:4') {
     centreHeight = clamp(
-      Math.min(width * 0.24, height * (count <= 3 ? 0.46 : 0.35)),
+      Math.min(width * (count <= 3 ? 0.36 : 0.24), height * (count <= 3 ? 0.62 : 0.35)),
       150,
-      count <= 3 ? 310 : 230
+      count <= 3 ? 410 : 230
     );
     centreWidth = Math.round(centreHeight * 0.75);
   } else if (centerRatio === '1:1') {
     centreHeight = clamp(
-      Math.min(width * 0.22, height * (count <= 3 ? 0.4 : 0.3)),
+      Math.min(width * (count <= 3 ? 0.24 : 0.22), height * (count <= 3 ? 0.4 : 0.3)),
       140,
       count <= 3 ? 280 : 210
     );
     centreWidth = centreHeight;
   } else {
     // Default 1.3:1 landscape card
-    centreHeight = clamp(Math.min(width * 0.18, height * 0.36), 140, 230);
+    centreHeight = clamp(
+      Math.min(width * 0.18, height * (count <= 3 ? 0.4 : 0.36)),
+      140,
+      count <= 3 ? 250 : 230
+    );
     centreWidth = Math.round(centreHeight * 1.3);
   }
 
