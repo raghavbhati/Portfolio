@@ -1,7 +1,4 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
-
-(globalThis as any).jest = vi;
 
 if (typeof HTMLDialogElement !== 'undefined') {
   HTMLDialogElement.prototype.showModal = function () {

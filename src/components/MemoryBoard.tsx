@@ -1,57 +1,64 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { CSSProperties, PointerEvent, ReactNode } from 'react';
+import type { CSSProperties, PointerEvent } from 'react';
+import MemoryStrings from './MemoryStrings';
+import type { BoardString } from './MemoryStrings';
 import {
   CAPTION,
   CENTRE,
-  FRAME,
   layoutBoard,
   polaroidHeight,
-  stringPath,
+  reconcileOrder,
+  swapPlaces,
 } from '../utils/memoryBoardLayout';
 import type { CenterRatio, Point } from '../utils/memoryBoardLayout';
 
 export interface BoardImage {
   src: string;
   alt: string;
-  fallbackSrc?: string;
 }
 
 export interface BoardItem {
   id: string;
-  /** Short caption under the polaroid. */
-  label: string;
   /** The first photo is pinned to the board; all of them show on the centre card. */
   photos: BoardImage[];
+}
+
+/** What the footer says about the memory on the centre card. */
+export interface BoardDetails {
+  /** What it was, or where. */
+  heading: string;
+  /** When: a date or a date range. */
+  when: string;
+  /** What it was like. */
+  text: string;
+  /** A post with more photos, shown as a button that opens it in a new tab. */
+  post?: { href: string; label: string };
 }
 
 interface MemoryBoardProps<T extends BoardItem> {
   titleId: string;
   title: string;
   subtitle: string;
-  /** Shown in the footer while nothing is on the centre card, e.g. "10 places". */
-  meta: string;
-  /** Second line of the empty centre card, e.g. "see what it sounds like". */
-  prompt: string;
   closeLabel: string;
   items: T[];
+  /** The memory on the centre card. Bringing up another swaps the two places. */
   activeId: string | null;
+  /** Short caption under the polaroid and on the centre card. */
+  caption: (item: T) => string;
   /** Accessible name for a polaroid. */
   describe: (item: T) => string;
   onActivate: (item: T) => void;
-  onEject: () => void;
   onClose: () => void;
-  /** Footer content while `item` is on the centre card. */
-  renderDetails: (item: T) => ReactNode;
-  /** Extra overlay on the centre card, next to the caption. */
-  renderBadge?: (item: T) => ReactNode;
-  /** Aspect ratio for the centre memory card. Defaults to 'landscape'. */
+  /** What the footer says while `item` is on the centre card. */
+  details: (item: T) => BoardDetails;
+  /** Shape of the space kept for the centre card. Defaults to 'landscape'. */
   centerRatio?: CenterRatio;
-  /** Whether to show a toggle button to switch between 3:4 and 1:1 on the centre card. */
-  allowRatioToggle?: boolean;
 }
 
 interface Drag {
   id: string;
+  /** The place on the board it was picked up from. */
+  index: number;
   pointerId: number;
   startX: number;
   startY: number;
@@ -66,28 +73,43 @@ const DRAG_THRESHOLD = 4;
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
+/**
+ * The shape (width over height) of every photo loaded so far, by address. A photo pinned
+ * to the board has usually loaded before it's brought up, so the centre card can open at
+ * its shape straight away.
+ */
+const photoShapes = new Map<string, number>();
+
 function Photo({
   image,
   className,
   style,
   hidden,
+  decorative,
+  onShape,
 }: {
   image: BoardImage;
   className: string;
   style?: CSSProperties;
   hidden?: boolean;
+  /** A backdrop copy of a photo, with nothing to say. */
+  decorative?: boolean;
+  /** Called with the photo's width over its height once it has loaded. */
+  onShape?: (ratio: number) => void;
 }) {
   return (
     <img
       src={image.src}
-      alt={image.alt}
-      aria-hidden={hidden || undefined}
+      alt={decorative ? '' : image.alt}
+      aria-hidden={hidden || decorative || undefined}
       draggable={false}
       className={className}
       style={style}
-      onError={(event) => {
-        const img = event.currentTarget;
-        if (image.fallbackSrc && !img.src.endsWith(image.fallbackSrc)) img.src = image.fallbackSrc;
+      onLoad={(event) => {
+        const { naturalWidth, naturalHeight } = event.currentTarget;
+        if (naturalWidth <= 0 || naturalHeight <= 0) return;
+        photoShapes.set(image.src, naturalWidth / naturalHeight);
+        onShape?.(naturalWidth / naturalHeight);
       }}
     />
   );
@@ -95,32 +117,46 @@ function Photo({
 
 const SWIPE_DISTANCE = 40;
 
+/** The largest size of the given shape (width over height) that fits in `box`. */
+export function fitPhoto(ratio: number, box: { width: number; height: number }) {
+  return ratio >= box.width / box.height
+    ? { width: box.width, height: Math.round(box.width / ratio) }
+    : { width: Math.round(box.height * ratio), height: box.height };
+}
+
 /**
  * The centre card while a memory is up: a frameless photo viewer, unlike the white
- * polaroids around it, that steps through every photo of that memory.
+ * polaroids around it, that steps through every photo of that memory. It takes the shape
+ * of the photo on show, as large as fits in `box`: wide for a landscape photo, tall for a
+ * portrait one.
  */
 function PhotoViewer({
   item,
-  badge,
-  onEject,
+  label,
+  box,
 }: {
   item: BoardItem;
-  badge?: ReactNode;
-  onEject: () => void;
-  ratio?: CenterRatio;
-  onToggleRatio?: () => void;
+  label: string;
+  box: { width: number; height: number };
 }) {
   const [index, setIndex] = useState(0);
+  // Each photo's shape, known once it has loaded; until then the card fills the box.
+  const [shapes, setShapes] = useState<Record<number, number>>({});
   const swipeFrom = useRef<number | null>(null);
   const count = item.photos.length;
   const show = (next: number) => setIndex((next + count) % count);
+  const size = fitPhoto(
+    shapes[index] ?? photoShapes.get(item.photos[index].src) ?? box.width / box.height,
+    box
+  );
 
   return (
     <figure
       role="group"
       aria-roledescription="carousel"
-      aria-label={`${item.label}, photo ${index + 1} of ${count}`}
-      className="memory-pop group/viewer relative m-0 h-full w-full overflow-hidden rounded-[18px] bg-black shadow-[0_32px_90px_rgba(0,0,0,0.75),0_0_40px_rgba(251,100,116,0.25)] ring-2 ring-string/90 [body[data-theme=light]_&]:ring-string [body[data-theme=light]_&]:shadow-[0_32px_70px_rgba(0,0,0,0.35),0_0_35px_rgba(227,84,105,0.22)]"
+      aria-label={`${label}, photo ${index + 1} of ${count}`}
+      style={size}
+      className="memory-pop group/viewer relative m-0 shrink-0 overflow-hidden rounded-[18px] bg-black transition-[width,height] duration-300 ease-out motion-reduce:transition-none shadow-[0_32px_90px_rgba(0,0,0,0.75),0_0_40px_rgba(251,100,116,0.25)] ring-2 ring-string/90 [body[data-theme=light]_&]:ring-string [body[data-theme=light]_&]:shadow-[0_32px_70px_rgba(0,0,0,0.35),0_0_35px_rgba(227,84,105,0.22)]"
       onKeyDown={(event) => {
         if (count < 2 || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
         event.preventDefault();
@@ -142,12 +178,28 @@ function PhotoViewer({
         style={{ transform: `translateX(-${index * 100}%)` }}
       >
         {item.photos.map((photo, photoIndex) => (
-          <Photo
+          // The whole photo, never cropped, over a soft blurred copy of itself that fills
+          // whatever space the card's shape leaves around it.
+          <div
             key={`${photo.src}-${photoIndex}`}
-            image={photo}
-            hidden={photoIndex !== index}
-            className="block h-full w-full shrink-0 object-cover object-center"
-          />
+            className="relative h-full w-full shrink-0 overflow-hidden"
+          >
+            <Photo
+              image={photo}
+              decorative
+              className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl"
+            />
+            <Photo
+              image={photo}
+              hidden={photoIndex !== index}
+              onShape={(shape) =>
+                setShapes((known) =>
+                  known[photoIndex] === shape ? known : { ...known, [photoIndex]: shape }
+                )
+              }
+              className="relative block h-full w-full object-contain object-center"
+            />
+          </div>
         ))}
       </div>
 
@@ -185,128 +237,127 @@ function PhotoViewer({
       )}
 
       <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/85 via-black/35 to-transparent px-4 pt-12 pb-3.5">
-        <span className="truncate font-serif text-xl italic leading-tight text-white drop-shadow-sm">
-          {item.label}
+        <span className="line-clamp-2 min-w-0 font-serif text-xl italic leading-tight text-white drop-shadow-sm">
+          {label}
         </span>
-        <span className="pointer-events-auto flex shrink-0 items-center gap-2 text-white">
-          {badge}
-          {count > 1 && (
-            <span className="rounded-full border border-white/15 bg-black/50 px-2 py-0.5 font-mono text-[10px] text-white/90 backdrop-blur-sm">
-              {index + 1}/{count}
-            </span>
-          )}
-        </span>
+        {count > 1 && (
+          <span className="shrink-0 rounded-full border border-white/15 bg-black/50 px-2 py-0.5 font-mono text-[10px] text-white/90 backdrop-blur-sm">
+            {index + 1}/{count}
+          </span>
+        )}
       </figcaption>
-      <button
-        type="button"
-        onClick={onEject}
-        aria-label={`Put ${item.label} back`}
-        className="absolute top-3.5 right-3.5 z-10 grid h-7 w-7 cursor-pointer place-items-center rounded-full border-0 bg-black/55 text-sm leading-none text-white backdrop-blur-sm transition-colors hover:bg-black/80"
-      >
-        ×
-      </button>
     </figure>
   );
 }
 
-const NETWORKS = {
-  instagram: {
-    name: 'Instagram',
-    icon: (
-      <>
-        <rect x="3" y="3" width="18" height="18" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.5" cy="6.5" r=".6" />
-      </>
-    ),
-  },
-  linkedin: {
-    name: 'LinkedIn',
-    icon: (
-      <>
-        <rect x="3" y="3" width="18" height="18" rx="1" />
-        <path d="M7 10v7M11 17v-7m0 3c0-4 6-4 6 0v4" />
-        <circle cx="7" cy="7" r=".7" />
-      </>
-    ),
-  },
-  twitter: { name: 'Twitter', icon: <path d="M4 3h4l12 18h-4zM20 3 4 21" /> },
-};
-
-/** "Check the post on …" for a memory's social post; icon-only on narrow screens. */
-export function PostLink({ href, network }: { href: string; network: keyof typeof NETWORKS }) {
-  const label = `Check the post on ${NETWORKS[network].name}`;
+function Details({ heading, when, text, post }: BoardDetails) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={label}
-      title={label}
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line px-3 py-1.5 font-mono text-[11px] text-text transition-colors hover:border-muted hover:text-bright"
-    >
-      <svg
-        className="h-3.5 w-3.5"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        {NETWORKS[network].icon}
-      </svg>
-      <span className="max-[1024px]:hidden">{label} ↗</span>
-    </a>
+    <>
+      <div className="min-w-0">
+        <p className="m-0 truncate text-[13px] text-bright [body[data-theme=light]_&]:text-heading">
+          {heading}
+          <span className="text-muted"> · {when}</span>
+        </p>
+        <p className="m-0 mt-0.5 line-clamp-2 text-xs text-muted">{text}</p>
+      </div>
+      {post && (
+        <a
+          href={post.href}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={post.label}
+          title={post.label}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line px-3 py-1.5 font-mono text-[11px] text-text transition-colors hover:border-muted hover:text-bright"
+        >
+          <svg
+            className="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.5" cy="6.5" r=".6" />
+          </svg>
+          {/* Just the icon on phones, where the footer is narrow. */}
+          <span className="max-[640px]:hidden">{post.label} ↗</span>
+        </a>
+      )}
+    </>
   );
 }
 
 /**
  * "Memories on a string": polaroids pinned around a centre card and tied together with
- * thread. Drag a polaroid onto the card — or click it — to bring it up.
+ * thread. Drag a polaroid onto the card — or click it — to bring it up; the memory that
+ * was up there takes its place on the board.
  */
 export default function MemoryBoard<T extends BoardItem>({
   titleId,
   title,
   subtitle,
-  meta,
-  prompt,
   closeLabel,
   items,
   activeId,
+  caption,
   describe,
   onActivate,
-  onEject,
   onClose,
-  renderDetails,
-  renderBadge,
+  details,
   centerRatio = 'landscape',
-  allowRatioToggle = false,
 }: MemoryBoardProps<T>) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const centreRef = useRef<HTMLDivElement>(null);
+  const surfaceRef = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const suppressClick = useRef(false);
   const [size, setSize] = useState(DEFAULT_SIZE);
-  const [offsets, setOffsets] = useState<Record<string, Point>>({});
+  // Where each place's photo has been moved to by hand, by place on the board.
+  const [offsets, setOffsets] = useState<Record<number, Point>>({});
   const [draggingId, setDraggingId] = useState<string | null>(null);
   // The photo moved last sits on top of its neighbours.
   const [raisedId, setRaisedId] = useState<string | null>(null);
   const [overCentre, setOverCentre] = useState(false);
-  const [ratio, setRatio] = useState<CenterRatio>(centerRatio);
 
-  useEffect(() => {
-    setRatio(centerRatio);
-  }, [centerRatio]);
-
-  const toggleRatio = allowRatioToggle
-    ? () => setRatio((prev) => (prev === '3:4' ? '1:1' : '3:4'))
-    : undefined;
-
-  const layout = layoutBoard(items.length, size.width, size.height, ratio);
+  // Which memory sits in which place. The one on the centre card has no place on the board;
+  // bringing up another swaps the two, so the one coming down lands where it was picked up.
+  const ids = items.map((item) => item.id);
+  const [arrangement, setArrangement] = useState(() => ({
+    order: ids,
+    centreId: activeId,
+    swaps: 0,
+    /** The memory that last came down from the centre card. */
+    landedId: null as string | null,
+  }));
+  let { order } = arrangement;
+  const reconciled = reconcileOrder(order, ids);
+  if (arrangement.centreId !== activeId || reconciled.join('\n') !== order.join('\n')) {
+    const from = arrangement.centreId;
+    const swapped =
+      from !== null &&
+      activeId !== null &&
+      from !== activeId &&
+      reconciled.includes(from) &&
+      reconciled.includes(activeId);
+    order = swapped ? swapPlaces(reconciled, from, activeId) : reconciled;
+    setArrangement({
+      order,
+      centreId: activeId,
+      swaps: arrangement.swaps + (swapped ? 1 : 0),
+      landedId: swapped ? from : arrangement.landedId,
+    });
+  }
   const active = items.find((item) => item.id === activeId) ?? null;
+  const pinned = order
+    .filter((id) => id !== active?.id)
+    .map((id) => items.find((item) => item.id === id)!);
+
+  const layout = layoutBoard(pinned.length, size.width, size.height, centerRatio);
   const { centre } = layout;
 
   useLayoutEffect(() => {
@@ -333,7 +384,7 @@ export default function MemoryBoard<T extends BoardItem>({
   }, []);
 
   // Photos moved by hand only make sense on the board they were moved on.
-  useEffect(() => setOffsets({}), [layout.mode, size.width]);
+  useEffect(() => setOffsets({}), [layout.mode, size.width, pinned.length]);
 
   // On phones the centre card sits above the photos; bring it back into view.
   useEffect(() => {
@@ -353,15 +404,15 @@ export default function MemoryBoard<T extends BoardItem>({
 
   function positionOf(index: number): Point {
     const slot = layout.slots[index];
-    const offset = offsets[items[index].id];
+    const offset = offsets[index];
     if (!offset) return slot;
     const { x, y } = onBoard(index, offset);
     return { x: slot.x + x, y: slot.y + y };
   }
 
-  // Strings tie to the middle of the photo, or to the centre card while it's up there.
+  // Strings tie to the middle of the photo, or to the centre card.
   function pinOf(index: number): Point {
-    if (index === CENTRE || items[index].id === activeId) return centre;
+    if (index === CENTRE) return centre;
     const position = positionOf(index);
     return { x: position.x, y: position.y - CAPTION / 2 };
   }
@@ -378,13 +429,14 @@ export default function MemoryBoard<T extends BoardItem>({
     );
   }
 
-  function startDrag(event: PointerEvent<HTMLButtonElement>, item: T) {
+  function startDrag(event: PointerEvent<HTMLButtonElement>, item: T, index: number) {
     suppressClick.current = false;
-    if (event.button !== 0 || item.id === activeId) return;
+    if (event.button !== 0) return;
     event.currentTarget.setPointerCapture?.(event.pointerId);
-    const origin = offsets[item.id] ?? { x: 0, y: 0 };
+    const origin = offsets[index] ?? { x: 0, y: 0 };
     drag.current = {
       id: item.id,
+      index,
       pointerId: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
@@ -407,7 +459,7 @@ export default function MemoryBoard<T extends BoardItem>({
     }
     setOffsets((prev) => ({
       ...prev,
-      [current.id]: { x: current.originX + dx, y: current.originY + dy },
+      [current.index]: { x: current.originX + dx, y: current.originY + dy },
     }));
     setOverCentre(isOverCentre(event.clientX, event.clientY));
   }
@@ -421,15 +473,15 @@ export default function MemoryBoard<T extends BoardItem>({
     suppressClick.current = !cancelled;
     setDraggingId(null);
     setOverCentre(false);
+    const { index } = current;
     if (!cancelled && isOverCentre(event.clientX, event.clientY)) {
-      // Once it's put back, it goes back to its own pin.
-      setOffsets(({ [item.id]: _dropped, ...rest }) => rest);
+      // The memory coming down from the centre card hangs from this place's own pin.
+      setOffsets(({ [index]: _dropped, ...rest }) => rest);
       onActivate(item);
       return;
     }
     // Keep it where it landed on the board, so the next drag starts from there.
-    const index = items.indexOf(item);
-    setOffsets((prev) => ({ ...prev, [item.id]: onBoard(index, prev[item.id]) }));
+    setOffsets((prev) => ({ ...prev, [index]: onBoard(index, prev[index]) }));
   }
 
   function handleClick(item: T) {
@@ -437,12 +489,27 @@ export default function MemoryBoard<T extends BoardItem>({
       suppressClick.current = false;
       return;
     }
-    if (item.id === activeId) onEject();
-    else onActivate(item);
+    onActivate(item);
   }
 
-  const strung = (index: number) =>
-    index !== CENTRE && (items[index].id === activeId || items[index].id === draggingId);
+  // The place the last memory came down into: its strings twang as it lands.
+  const landed = pinned.findIndex((item) => item.id === arrangement.landedId);
+  const strings: BoardString[] = layout.links.flatMap(([from, to]) => {
+    const a = pinOf(from);
+    const b = pinOf(to);
+    if (a.x === b.x && a.y === b.y) return [];
+    const ends = [from, to];
+    const dragged = ends.some((end) => end !== CENTRE && pinned[end].id === draggingId);
+    return [
+      {
+        key: `${from}-${to}`,
+        from: a,
+        to: b,
+        opacity: dragged ? 0.95 : ends.includes(CENTRE) && active ? 0.75 : 0.55,
+        twang: ends.includes(CENTRE) || ends.includes(landed) ? arrangement.swaps : 0,
+      },
+    ];
+  });
 
   return (
     <dialog
@@ -485,33 +552,18 @@ export default function MemoryBoard<T extends BoardItem>({
         </header>
 
         <div ref={boardRef} className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="dot-grid relative w-full" style={{ height: layout.height }}>
-            <svg
-              className="memory-strings pointer-events-none absolute inset-0 h-full w-full overflow-visible"
-              aria-hidden="true"
-            >
-              {layout.links.map(([from, to]) => {
-                const a = pinOf(from);
-                const b = pinOf(to);
-                if (a.x === b.x && a.y === b.y) return null;
-                return (
-                  <path
-                    key={`${from}-${to}`}
-                    d={stringPath(a, b)}
-                    className="fill-none stroke-string"
-                    strokeWidth={1.25}
-                    strokeLinecap="round"
-                    strokeOpacity={strung(from) || strung(to) ? 0.95 : 0.55}
-                  />
-                );
-              })}
-            </svg>
+          <div
+            ref={surfaceRef}
+            className="dot-grid relative w-full"
+            style={{ height: layout.height }}
+          >
+            <MemoryStrings strings={strings} surfaceRef={surfaceRef} />
 
             <div
               ref={centreRef}
-              className={`absolute transition-transform duration-200 ${active ? 'z-25' : 'z-20'} ${
-                overCentre ? 'scale-[1.04]' : ''
-              }`}
+              className={`absolute flex items-center justify-center transition-transform duration-200 ${
+                active ? 'z-25' : 'z-20'
+              } ${overCentre ? 'scale-[1.04]' : ''}`}
               style={{
                 left: centre.x - centre.width / 2,
                 top: centre.y - centre.height / 2,
@@ -519,30 +571,15 @@ export default function MemoryBoard<T extends BoardItem>({
                 height: centre.height,
               }}
             >
-              {active ? (
+              {active && (
                 <PhotoViewer
                   key={active.id}
                   item={active}
-                  badge={renderBadge?.(active)}
-                  onEject={onEject}
-                  ratio={ratio}
-                  onToggleRatio={toggleRatio}
+                  label={caption(active)}
+                  box={{ width: centre.width, height: centre.height }}
                 />
-              ) : (
-                <div
-                  className={`grid h-full w-full place-items-center rounded-[16px] border border-dashed p-6 text-center shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-colors ${
-                    overCentre ? 'border-string bg-tag' : 'border-line bg-surface'
-                  }`}
-                >
-                  <p className="m-0 text-[13px] leading-6 text-muted">
-                    <span className="block">
-                      {layout.mode === 'ring' ? 'drop a memory here' : 'tap a memory below'}
-                    </span>
-                    <span className="block">{prompt}</span>
-                  </p>
-                </div>
               )}
-              {overCentre && active && (
+              {overCentre && (
                 <span
                   className="pointer-events-none absolute inset-0 rounded-[16px] ring-2 ring-string"
                   aria-hidden="true"
@@ -550,19 +587,18 @@ export default function MemoryBoard<T extends BoardItem>({
               )}
             </div>
 
-            {items.map((item, index) => {
+            {pinned.map((item, index) => {
               const slot = layout.slots[index];
               const position = positionOf(index);
-              const isActive = item.id === activeId;
               const isDragging = item.id === draggingId;
               const height = polaroidHeight(slot);
               return (
+                // Keyed by place, so focus stays put when a memory swaps in.
                 <button
-                  key={item.id}
+                  key={index}
                   type="button"
                   aria-label={describe(item)}
-                  aria-pressed={isActive}
-                  onPointerDown={(event) => startDrag(event, item)}
+                  onPointerDown={(event) => startDrag(event, item, index)}
                   onPointerMove={moveDrag}
                   onPointerUp={(event) => endDrag(event, item)}
                   onPointerCancel={(event) => endDrag(event, item, true)}
@@ -574,10 +610,6 @@ export default function MemoryBoard<T extends BoardItem>({
                     isDragging
                       ? 'z-30 cursor-grabbing'
                       : `${item.id === raisedId ? 'z-[15]' : 'z-10'} cursor-grab`
-                  } ${
-                    active && !isActive
-                      ? 'opacity-65 saturate-[0.8] hover:opacity-100 hover:saturate-100 transition-all duration-300'
-                      : 'opacity-100'
                   }`}
                   style={{
                     width: slot.width,
@@ -586,50 +618,45 @@ export default function MemoryBoard<T extends BoardItem>({
                     }px) rotate(${isDragging ? 0 : slot.rotate}deg)`,
                   }}
                 >
+                  {/* A memory swapping in drops into place on its own; on opening they cascade. */}
                   <span
+                    key={item.id}
                     className="memory-drop-in block"
-                    style={{ animationDelay: `${index * 45}ms` }}
+                    style={{ animationDelay: `${arrangement.swaps ? 0 : index * 45}ms` }}
                   >
-                    {isActive ? (
+                    <span
+                      className={`relative block transition-[translate,scale] duration-200 ${
+                        isDragging ? 'scale-[1.05]' : 'group-hover:-translate-y-1'
+                      }`}
+                    >
+                      {/* More than one photo: the rest peek out behind, like a little stack. */}
+                      {item.photos.slice(1, 3).map((photo, layer) => (
+                        <span
+                          key={`${photo.src}-${layer}`}
+                          aria-hidden="true"
+                          className={`absolute inset-0 rounded-[10px] ring-1 ring-black/5 shadow-[0_6px_18px_rgba(0,0,0,0.25)] ${
+                            layer === 0
+                              ? 'translate-x-[5px] -translate-y-[3px] rotate-[5deg] bg-[#ededed]'
+                              : '-translate-x-[4px] -translate-y-[2px] -rotate-[4deg] bg-[#e2e2e2]'
+                          }`}
+                        />
+                      ))}
                       <span
-                        className="block rounded-[10px] border border-dashed border-line"
-                        style={{ height: slot.width * slot.ratio + FRAME }}
-                      />
-                    ) : (
-                      <span
-                        className={`relative block transition-[translate,scale] duration-200 ${
-                          isDragging ? 'scale-[1.05]' : 'group-hover:-translate-y-1'
+                        className={`relative block rounded-[10px] bg-[#fafafa] p-[5px] ring-1 ring-black/5 ${
+                          isDragging
+                            ? 'shadow-[0_24px_50px_rgba(0,0,0,0.5)]'
+                            : 'shadow-[0_10px_28px_rgba(0,0,0,0.35)]'
                         }`}
                       >
-                        {/* More than one photo: the rest peek out behind, like a little stack. */}
-                        {item.photos.slice(1, 3).map((photo, layer) => (
-                          <span
-                            key={`${photo.src}-${layer}`}
-                            aria-hidden="true"
-                            className={`absolute inset-0 rounded-[10px] ring-1 ring-black/5 shadow-[0_6px_18px_rgba(0,0,0,0.25)] ${
-                              layer === 0
-                                ? 'translate-x-[5px] -translate-y-[3px] rotate-[5deg] bg-[#ededed]'
-                                : '-translate-x-[4px] -translate-y-[2px] -rotate-[4deg] bg-[#e2e2e2]'
-                            }`}
-                          />
-                        ))}
-                        <span
-                          className={`relative block rounded-[10px] bg-[#fafafa] p-[5px] ring-1 ring-black/5 ${
-                            isDragging
-                              ? 'shadow-[0_24px_50px_rgba(0,0,0,0.5)]'
-                              : 'shadow-[0_10px_28px_rgba(0,0,0,0.35)]'
-                          }`}
-                        >
-                          <Photo
-                            image={item.photos[0]}
-                            className="pointer-events-none block w-full rounded-[6px] object-cover"
-                            style={{ aspectRatio: `${1 / slot.ratio}` }}
-                          />
-                        </span>
+                        <Photo
+                          image={item.photos[0]}
+                          className="pointer-events-none block w-full rounded-[6px] object-cover"
+                          style={{ aspectRatio: `${1 / slot.ratio}` }}
+                        />
                       </span>
-                    )}
+                    </span>
                     <span className="mt-1.5 block truncate text-center font-serif text-[15px] italic leading-5 text-muted">
-                      {item.label}
+                      {caption(item)}
                     </span>
                   </span>
                 </button>
@@ -642,18 +669,7 @@ export default function MemoryBoard<T extends BoardItem>({
           aria-live="polite"
           className="flex min-h-[60px] items-center justify-between gap-4 border-t border-dashed border-line px-6 py-3 text-xs text-muted max-[640px]:px-4"
         >
-          {active ? (
-            renderDetails(active)
-          ) : (
-            <>
-              <span>
-                {layout.mode === 'ring'
-                  ? 'Drag a photo onto the centre, or click one.'
-                  : 'Tap a photo to bring it up.'}
-              </span>
-              <span className="shrink-0 font-mono text-[11px]">{meta}</span>
-            </>
-          )}
+          {active && <Details {...details(active)} />}
         </footer>
       </div>
     </dialog>

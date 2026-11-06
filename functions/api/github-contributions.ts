@@ -1,13 +1,13 @@
 // Cloudflare Pages Function: GET /api/github-contributions
 //
-// Asks GitHub's GraphQL API for the last year of contributions and returns weekly totals.
+// Asks GitHub's GraphQL API for the last year of contributions and returns daily counts.
 // The token stays here on the server (set GITHUB_TOKEN in Cloudflare Pages → Settings →
 // Variables and Secrets; a classic token with no scopes is enough for public data).
 // Answers are kept in Cloudflare's edge cache for six hours.
 import {
   CONTRIBUTIONS_QUERY,
   GITHUB_LOGIN,
-  toWeeklyContributions,
+  toDailyContributions,
 } from '../../src/utils/githubContributions';
 import type { ContributionCalendar } from '../../src/utils/githubContributions';
 
@@ -67,7 +67,7 @@ export async function onRequestGet({ request, env, waitUntil }: Context): Promis
   }
   if (!calendar) return json({ error: 'upstream' }, 502);
 
-  const response = json(toWeeklyContributions(calendar), 200, CACHE_SECONDS);
+  const response = json(toDailyContributions(calendar), 200, CACHE_SECONDS);
   waitUntil(cache.put(request, response.clone()));
   return response;
 }

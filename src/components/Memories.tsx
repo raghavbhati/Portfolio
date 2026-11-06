@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import MemoryBoard, { PostLink } from './MemoryBoard';
+import MemoryBoard from './MemoryBoard';
 import MemoryFolder from './MemoryFolder';
 import { memories } from '../data/memories';
 import type { MemoryEvent } from '../data/memories';
+import { latestMemoryId } from '../utils/memoryDate';
 import { useMemoryDialog } from '../utils/useMemoryDialog';
 
 interface MemoriesProps {
@@ -11,13 +12,16 @@ interface MemoriesProps {
 }
 
 export default function Memories({ defaultOpen = false, events = memories }: MemoriesProps = {}) {
-  const [activeId, setActiveId] = useState<string | null>(null);
+  // The board opens on the latest event until another one is brought up.
+  const [chosenId, setChosenId] = useState<string | null>(null);
   const ids = useMemo(() => events.map((event) => event.id), [events]);
-  const dialog = useMemoryDialog('memories', ids, defaultOpen, setActiveId);
+  const activeId =
+    chosenId && ids.includes(chosenId) ? chosenId : latestMemoryId(events, (event) => event.date);
+  const dialog = useMemoryDialog('memories', ids, defaultOpen, setChosenId);
   const count = `${events.length} ${events.length === 1 ? 'event' : 'events'}`;
 
   function close() {
-    setActiveId(null);
+    setChosenId(null);
     dialog.close();
   }
 
@@ -40,34 +44,15 @@ export default function Memories({ defaultOpen = false, events = memories }: Mem
           titleId="memories-title"
           title="Event Memories"
           subtitle="conferences & hackathons, on a string"
-          meta={count}
-          prompt="see what it was like"
           closeLabel="Close event memories"
           items={events}
           activeId={activeId}
           centerRatio="3:4"
-          describe={(event) => `${event.label}, ${event.title}`}
-          onActivate={(event) => setActiveId(event.id)}
-          onEject={() => setActiveId(null)}
+          caption={(event) => event.title}
+          describe={(event) => `${event.title}, ${event.date}`}
+          onActivate={(event) => setChosenId(event.id)}
           onClose={close}
-          renderDetails={(event) => (
-            <>
-              <div className="min-w-0">
-                <p className="m-0 truncate text-[13px] text-bright [body[data-theme=light]_&]:text-heading">
-                  {event.title}
-                  <span className="text-muted">
-                    {' '}
-                    · {event.organization} · {event.date}
-                  </span>
-                </p>
-                <p className="m-0 mt-0.5 truncate text-xs text-muted">{event.highlight}</p>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {event.linkedInUrl && <PostLink href={event.linkedInUrl} network="linkedin" />}
-                {event.twitterUrl && <PostLink href={event.twitterUrl} network="twitter" />}
-              </div>
-            </>
-          )}
+          details={(event) => ({ heading: event.title, when: event.date, text: event.description })}
         />
       )}
     </>

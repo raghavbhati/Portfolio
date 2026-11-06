@@ -13,7 +13,7 @@ export interface Slot extends Point {
   rotate: number;
 }
 
-export type CenterRatio = '3:4' | '1:1' | 'landscape';
+export type CenterRatio = '3:4' | 'landscape';
 
 export interface BoardLayout {
   /** `ring` circles the centre card (desktop); `stack` flows below it (phones). */
@@ -175,21 +175,22 @@ function ringLayout(
       count <= 3 ? 410 : 230
     );
     centreWidth = Math.round(centreHeight * 0.75);
-  } else if (centerRatio === '1:1') {
-    centreHeight = clamp(
-      Math.min(width * (count <= 3 ? 0.24 : 0.22), height * (count <= 3 ? 0.4 : 0.3)),
-      140,
-      count <= 3 ? 280 : 210
-    );
-    centreWidth = centreHeight;
   } else {
-    // Default 1.3:1 landscape card
-    centreHeight = clamp(
-      Math.min(width * 0.18, height * (count <= 3 ? 0.4 : 0.36)),
-      140,
-      count <= 3 ? 250 : 230
-    );
-    centreWidth = Math.round(centreHeight * 1.3);
+    if (count <= 2) {
+      // With just a photo either side, a near-square space in the middle of the board: the
+      // card takes the shape of the photo on show inside it, so wide and tall photos both
+      // show large.
+      centreWidth = Math.round(clamp(width * 0.46, 200, 600));
+      centreHeight = Math.round(clamp(height * 0.78, 180, 520));
+    } else {
+      // A 1.3:1 landscape card.
+      centreHeight = clamp(
+        Math.min(width * 0.18, height * (count <= 3 ? 0.4 : 0.36)),
+        140,
+        count <= 3 ? 250 : 230
+      );
+      centreWidth = Math.round(centreHeight * 1.3);
+    }
   }
 
   const centre = { x: cx, y: cy, width: centreWidth, height: centreHeight };
@@ -214,12 +215,10 @@ function stackLayout(
   if (centerRatio === '3:4') {
     centreWidth = Math.min(width - pad * 2, 300);
     centreHeight = Math.round(centreWidth * (4 / 3));
-  } else if (centerRatio === '1:1') {
-    centreWidth = Math.min(width - pad * 2, 340);
-    centreHeight = centreWidth;
   } else {
+    // Square, so the card can take the shape of a wide or a tall photo inside it.
     centreWidth = Math.min(width - pad * 2, 360);
-    centreHeight = Math.round(centreWidth * 0.75);
+    centreHeight = centreWidth;
   }
   const cols = width >= 460 ? 3 : 2;
   const cell = (width - pad * 2) / cols;
@@ -257,13 +256,89 @@ export function layoutBoard(
     : ringLayout(count, width, height, centerRatio);
 }
 
+/**
+ * The board's ids in place order, brought up to date with `ids`: ids no longer there are
+ * dropped and new ones join at the end.
+ */
+export function reconcileOrder(order: readonly string[], ids: readonly string[]): string[] {
+  const kept = order.filter((id) => ids.includes(id));
+  return [...kept, ...ids.filter((id) => !kept.includes(id))];
+}
+
+/**
+ * Swaps two ids, so the memory going up onto the centre card leaves its place on the board
+ * to the one coming down from it.
+ */
+export function swapPlaces(order: readonly string[], a: string, b: string): string[] {
+  return order.map((id) => (id === a ? b : id === b ? a : id));
+}
+
+const restingSag = (dx: number, dy: number) => Math.min(70, 14 + Math.hypot(dx, dy) * 0.1);
+const fixed = (n: number) => n.toFixed(1);
+
 /** A string pinned at both ends, sagging under its own weight. */
 export function stringPath(from: Point, to: Point): string {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
-  const sag = Math.min(70, 14 + Math.hypot(dx, dy) * 0.1);
-  const f = (n: number) => n.toFixed(1);
+  const sag = restingSag(dx, dy);
+  const f = fixed;
   return `M ${f(from.x)} ${f(from.y)} C ${f(from.x + dx / 3)} ${f(from.y + dy / 3 + sag)} ${f(
     from.x + (2 * dx) / 3
   )} ${f(from.y + (2 * dy) / 3 + sag)} ${f(to.x)} ${f(to.y)}`;
+}
+
+export interface StringMotion {
+  /** Scales the resting sag; 1 hangs exactly like `stringPath`. */
+  sag?: number;
+  /** How far the middle of the string sways sideways, in px. */
+  sway?: number;
+  /** Height of the ripple running along the string, in px. */
+  wave?: number;
+  /** Where the ripple is in its cycle, in radians. Grow it over time to move the ripple. */
+  wavePhase?: number;
+  /** 1 runs the ripple from `from` towards `to`; -1 the other way. */
+  direction?: 1 | -1;
+}
+
+/**
+ * Points along a string from `from` to `to` (the curve `stringPath` draws), moved sideways
+ * by `motion`. Both ends stay pinned however it moves.
+ */
+export function stringPoints(
+  from: Point,
+  to: Point,
+  { sag = 1, sway = 0, wave = 0, wavePhase = 0, direction = 1 }: StringMotion = {},
+  segments = 24
+): Point[] {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const length = Math.hypot(dx, dy) || 1;
+  const drop = restingSag(dx, dy) * sag;
+  // Sideways is across the line between the pins.
+  const nx = -dy / length;
+  const ny = dx / length;
+  return Array.from({ length: segments + 1 }, (_, i) => {
+    if (i === segments) return { x: to.x, y: to.y };
+    const s = i / segments;
+    const pinned = Math.sin(Math.PI * s);
+    const side = pinned * (sway + wave * Math.sin(3 * Math.PI * s - direction * wavePhase));
+    return {
+      x: from.x + dx * s + nx * side,
+      y: from.y + dy * s + 3 * s * (1 - s) * drop + ny * side,
+    };
+  });
+}
+
+/** A smooth path through `points`, curving through the midpoints between them. */
+export function smoothPath(points: readonly Point[]): string {
+  if (points.length === 0) return '';
+  const f = fixed;
+  let d = `M ${f(points[0].x)} ${f(points[0].y)}`;
+  for (let i = 1; i < points.length - 1; i++) {
+    const p = points[i];
+    const next = points[i + 1];
+    d += ` Q ${f(p.x)} ${f(p.y)} ${f((p.x + next.x) / 2)} ${f((p.y + next.y) / 2)}`;
+  }
+  const last = points[points.length - 1];
+  return points.length > 1 ? `${d} L ${f(last.x)} ${f(last.y)}` : d;
 }

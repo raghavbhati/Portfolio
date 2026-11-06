@@ -21,11 +21,9 @@ const GROUPS: Group[] = ['Go to', 'Open', 'Actions', 'Theme'];
 const SECTIONS: Array<[id: string, label: string, keywords: string]> = [
   ['about', 'About', 'intro home'],
   ['experience', 'Experience', 'work ideaclan fabfunnel job'],
-  ['stack', 'Stack', 'skills tools tech'],
-  ['projects', 'Projects', 'built work'],
+  ['stack', 'Stack', 'skills tools tech ai'],
   ['education', 'Education', 'certifications masai university'],
   ['github-activity', 'GitHub activity', 'contributions code repositories'],
-  ['learning-log', 'Learning log', 'journey'],
   ['footer', 'Contact', 'email social connect'],
 ];
 const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent);

@@ -6,9 +6,11 @@ import type { MemoryEvent } from '../data/memories';
 const openBoard = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Open event memories' }));
 const polaroid = (event: MemoryEvent) =>
-  screen.getByRole('button', { name: `${event.label}, ${event.title}` });
+  screen.getByRole('button', { name: `${event.title}, ${event.date}` });
 const footer = () => screen.getByRole('dialog').querySelector('footer')!;
-const [clickup, mongodb] = memories;
+const onCentre = (event: MemoryEvent) =>
+  screen.getByRole('group', { name: new RegExp(`^${event.title}, photo`) });
+const [clickhouse, mongodb, promptwars] = memories;
 
 describe('Memories', () => {
   beforeEach(() => {
@@ -22,62 +24,58 @@ describe('Memories', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  test('pins one polaroid per event, not per photo', () => {
+  test('opens on the latest event, with one polaroid per other event pinned around it', () => {
     render(<Memories />);
     openBoard();
 
-    const dialog = screen.getByRole('dialog', { name: 'Event Memories' });
-    memories.forEach((event) => expect(polaroid(event)).toBeInTheDocument());
-    expect(within(dialog).getAllByRole('button', { pressed: false })).toHaveLength(memories.length);
-    expect(screen.getByText('see what it was like')).toBeInTheDocument();
+    screen.getByRole('dialog', { name: 'Event Memories' });
+    expect(onCentre(promptwars)).toBeInTheDocument();
+    [clickhouse, mongodb].forEach((event) => expect(polaroid(event)).toBeInTheDocument());
+    expect(
+      screen.queryByRole('button', { name: `${promptwars.title}, ${promptwars.date}` })
+    ).not.toBeInTheDocument();
+  });
+
+  test('tells only the title, date and description of the event that is up', () => {
+    render(<Memories defaultOpen />);
+    expect(footer()).toHaveTextContent(
+      'Promptwars Hackathon · 17th Oct 2026' +
+        '1day sprint: rapid AI prototyping & distributed services'
+    );
+    expect(within(footer()).queryByRole('link')).not.toBeInTheDocument();
+    expect(within(footer()).queryByRole('button')).not.toBeInTheDocument();
   });
 
   test('bringing up an event shows its story and every one of its photos', () => {
     render(<Memories defaultOpen />);
-    fireEvent.click(polaroid(mongodb));
+    const place = polaroid(mongodb);
+    fireEvent.click(place);
 
     expect(within(footer()).getByText('MongoDB.local Delhi')).toBeInTheDocument();
-    expect(within(footer()).getByText(/Jul 2025/)).toBeInTheDocument();
-    const viewer = screen.getByRole('group', { name: 'mongodb, photo 1 of 3' });
+    expect(within(footer()).getByText(/1st Jul 2025/)).toBeInTheDocument();
+    expect(
+      within(footer()).getByText('Atlas, vector search & generative AI pipelines')
+    ).toBeInTheDocument();
+    const viewer = screen.getByRole('group', { name: 'MongoDB.local Delhi, photo 1 of 3' });
     fireEvent.click(within(viewer).getByRole('button', { name: 'Next photo' }));
-    expect(viewer).toHaveAccessibleName('mongodb, photo 2 of 3');
+    expect(viewer).toHaveAccessibleName('MongoDB.local Delhi, photo 2 of 3');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Put mongodb back' }));
-    expect(within(footer()).getByText('3 events')).toBeInTheDocument();
-  });
-
-  test('links to the LinkedIn and Twitter posts only when the event has them', () => {
-    const events: MemoryEvent[] = [
-      { ...clickup, twitterUrl: 'https://twitter.com/raghavbhatirv/status/1' },
-      { ...mongodb, linkedInUrl: undefined, twitterUrl: undefined },
-    ];
-    render(<Memories defaultOpen events={events} />);
-
-    fireEvent.click(polaroid(events[0]));
-    const linkedIn = within(footer()).getByRole('link', { name: 'Check the post on LinkedIn' });
-    const twitter = within(footer()).getByRole('link', { name: 'Check the post on Twitter' });
-    expect(linkedIn).toHaveAttribute('href', clickup.linkedInUrl);
-    expect(twitter).toHaveAttribute('href', 'https://twitter.com/raghavbhatirv/status/1');
-    [linkedIn, twitter].forEach((link) => {
-      expect(link).toHaveAttribute('target', '_blank');
-      expect(link).toHaveAttribute('rel', 'noreferrer');
-    });
-
-    fireEvent.click(polaroid(events[1]));
-    expect(within(footer()).queryByRole('link')).not.toBeInTheDocument();
+    // The event that was up comes down into the place mongodb left.
+    expect(place).toHaveAccessibleName(`${promptwars.title}, ${promptwars.date}`);
   });
 
   test('an event hash opens the board on that event', () => {
     window.location.hash = '#mongodb-2025';
     render(<Memories />);
-    expect(polaroid(mongodb)).toHaveAttribute('aria-pressed', 'true');
+    expect(onCentre(mongodb)).toBeInTheDocument();
     expect(within(footer()).getByText('MongoDB.local Delhi')).toBeInTheDocument();
+    expect(polaroid(promptwars)).toBeInTheDocument();
   });
 
-  test('closing clears the hash, empties the board and returns focus to the folder', () => {
+  test('closing clears the hash, returns focus to the folder, and reopens on the latest', () => {
     window.location.hash = '#memories';
     render(<Memories />);
-    fireEvent.click(polaroid(clickup));
+    fireEvent.click(polaroid(clickhouse));
 
     fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -85,6 +83,6 @@ describe('Memories', () => {
     expect(screen.getByRole('button', { name: 'Open event memories' })).toHaveFocus();
 
     openBoard();
-    expect(screen.getByText('drop a memory here')).toBeInTheDocument();
+    expect(onCentre(promptwars)).toBeInTheDocument();
   });
 });

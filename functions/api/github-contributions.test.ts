@@ -6,8 +6,10 @@ const calendar = {
   totalContributions: 7,
   weeks: [
     {
-      firstDay: '2025-10-12',
-      contributionDays: [{ contributionCount: 3 }, { contributionCount: 4 }],
+      contributionDays: [
+        { date: '2025-10-12', contributionCount: 3 },
+        { date: '2025-10-13', contributionCount: 4 },
+      ],
     },
   ],
 };
@@ -33,7 +35,7 @@ function setup({ cached }: { cached?: Response } = {}) {
 describe('GET /api/github-contributions', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  test('asks GitHub with the token, returns weekly totals and caches them for six hours', async () => {
+  test('asks GitHub with the token, returns daily counts and caches them for six hours', async () => {
     const { cache, fetchMock, waitUntil, call } = setup();
     fetchMock.mockResolvedValue(
       new Response(
@@ -46,7 +48,13 @@ describe('GET /api/github-contributions', () => {
     const response = await call('secret-token');
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ total: 7, weeks: [{ start: '2025-10-12', count: 7 }] });
+    expect(await response.json()).toEqual({
+      total: 7,
+      days: [
+        { date: '2025-10-12', count: 3 },
+        { date: '2025-10-13', count: 4 },
+      ],
+    });
     expect(response.headers.get('cache-control')).toBe('public, max-age=21600');
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('https://api.github.com/graphql');
@@ -57,7 +65,7 @@ describe('GET /api/github-contributions', () => {
   });
 
   test('a cached answer is served without asking GitHub', async () => {
-    const cached = new Response('{"total":1,"weeks":[]}');
+    const cached = new Response('{"total":1,"days":[]}');
     const { fetchMock, call } = setup({ cached });
     expect(await call('secret-token')).toBe(cached);
     expect(fetchMock).not.toHaveBeenCalled();

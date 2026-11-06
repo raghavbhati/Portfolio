@@ -7,7 +7,7 @@ function renderPalette() {
   return render(
     <PreferencesProvider>
       <input aria-label="Some field" />
-      <section id="projects">Projects</section>
+      <section id="stack">Stack</section>
       <CommandPalette />
     </PreferencesProvider>
   );
@@ -87,10 +87,10 @@ describe('CommandPalette', () => {
     fireEvent.keyDown(searchBox(), { key: 'ArrowUp' });
     expect(screen.getAllByRole('option').at(-1)).toHaveAttribute('aria-selected', 'true');
 
-    type('projects');
+    type('stack');
     fireEvent.keyDown(searchBox(), { key: 'Enter' });
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
-    expect(window.location.hash).toBe('#projects');
+    expect(window.location.hash).toBe('#stack');
     expect(palette()).not.toBeInTheDocument();
   });
 
