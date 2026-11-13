@@ -79,6 +79,19 @@ describe('TravelMemory', () => {
       expect(within(footer()).queryByRole('link')).not.toBeInTheDocument();
     });
 
+    test('load small thumbnails for the folder and board, and the screen-sized copy on the card', () => {
+      render(<TravelMemory defaultOpen />);
+      const folder = Array.from(document.querySelectorAll('#travel-memory img'));
+      expect(folder).toHaveLength(3);
+      folder.forEach((img) => expect(img.getAttribute('src')).toMatch(/-w480\.jpg$/));
+      expect(polaroid('Shimla').querySelector('img')!.getAttribute('src')).toMatch(
+        /\/shimla1-w480\.jpg$/
+      );
+      const [backdrop, photo] = Array.from(onCentre('Yulla Kanda Trek').querySelectorAll('img'));
+      expect(backdrop.getAttribute('src')).toMatch(/\/yullakanda1-w480\.jpg$/);
+      expect(photo.getAttribute('src')).toMatch(/\/yullakanda1-w1600\.jpg$/);
+    });
+
     test('use every photo from the portfolio-image bucket', () => {
       render(<TravelMemory defaultOpen />);
       fireEvent.click(polaroid('Shimla'));

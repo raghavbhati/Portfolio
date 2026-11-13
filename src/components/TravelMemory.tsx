@@ -39,7 +39,7 @@ export default function TravelMemory({
         side="left"
         title="Travel"
         meta={`${memories.length} places`}
-        photos={memories.slice(0, 3).map((memory) => memory.photos[0].src)}
+        photos={memories.slice(0, 3).map(({ photos: [first] }) => first.thumb ?? first.src)}
         label="Open travel memories"
         expanded={dialog.isOpen}
         onOpen={dialog.open}

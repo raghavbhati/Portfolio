@@ -456,7 +456,7 @@ export default function App() {
                 </a>
                 <a
                   className="grid place-items-center w-[38px] h-[38px] border border-line rounded-[9px] bg-bg text-muted transition-[color,border-color] duration-150 hover:text-bright hover:border-muted"
-                  href="https://www.raghavbhatirv.in/"
+                  href="https://raghavbhatirv.in/"
                   aria-label="Website"
                   title="Website"
                   target="_blank"

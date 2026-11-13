@@ -25,7 +25,7 @@ function setup({ cached }: { cached?: Response } = {}) {
   const waitUntil = vi.fn();
   const call = (token?: string) =>
     onRequestGet({
-      request: new Request('https://www.raghavbhatirv.in/api/github-contributions'),
+      request: new Request('https://raghavbhatirv.in/api/github-contributions'),
       env: { GITHUB_TOKEN: token },
       waitUntil,
     });

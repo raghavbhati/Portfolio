@@ -14,6 +14,8 @@ import type { CenterRatio, Point } from '../utils/memoryBoardLayout';
 
 export interface BoardImage {
   src: string;
+  /** A small copy, used where the photo shows small or blurred. */
+  thumb?: string;
   alt: string;
 }
 
@@ -86,6 +88,7 @@ function Photo({
   style,
   hidden,
   decorative,
+  small,
   onShape,
 }: {
   image: BoardImage;
@@ -94,12 +97,14 @@ function Photo({
   hidden?: boolean;
   /** A backdrop copy of a photo, with nothing to say. */
   decorative?: boolean;
+  /** Shown small (or blurred), so its thumbnail will do. */
+  small?: boolean;
   /** Called with the photo's width over its height once it has loaded. */
   onShape?: (ratio: number) => void;
 }) {
   return (
     <img
-      src={image.src}
+      src={small ? image.thumb ?? image.src : image.src}
       alt={decorative ? '' : image.alt}
       aria-hidden={hidden || decorative || undefined}
       draggable={false}
@@ -187,6 +192,7 @@ function PhotoViewer({
             <Photo
               image={photo}
               decorative
+              small
               className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl"
             />
             <Photo
@@ -650,6 +656,7 @@ export default function MemoryBoard<T extends BoardItem>({
                       >
                         <Photo
                           image={item.photos[0]}
+                          small
                           className="pointer-events-none block w-full rounded-[6px] object-cover"
                           style={{ aspectRatio: `${1 / slot.ratio}` }}
                         />

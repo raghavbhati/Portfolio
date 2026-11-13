@@ -32,7 +32,7 @@ export default function Memories({ defaultOpen = false, events = memories }: Mem
         side="right"
         title="Events"
         meta={count}
-        photos={events.slice(0, 3).map((event) => event.photos[0].src)}
+        photos={events.slice(0, 3).map(({ photos: [first] }) => first.thumb ?? first.src)}
         label="Open event memories"
         expanded={dialog.isOpen}
         onOpen={dialog.open}

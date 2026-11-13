@@ -57,3 +57,12 @@ describe('latestMemoryId', () => {
     expect(latestMemoryId(travelMemories, (trip) => trip.dates)).toBe('travel-yulla-kanda');
   });
 });
+
+test('every memory photo comes in the two sizes made for the site', () => {
+  [...memories, ...travelMemories].forEach(({ photos }) =>
+    photos.forEach((photo) => {
+      expect(photo.src).toMatch(/-w1600\.jpg$/);
+      expect(photo.thumb).toMatch(/-w480\.jpg$/);
+    })
+  );
+});

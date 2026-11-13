@@ -1,4 +1,5 @@
-import { r2Url } from './memories';
+import { r2Photo } from './memories';
+import type { MemoryPhoto } from './memories';
 
 export interface TravelMemory {
   id: string;
@@ -11,10 +12,7 @@ export interface TravelMemory {
   /** An Instagram post with more photos; adds a "See dump on Instagram" button. */
   instagramUrl?: string;
   /** Every photo from the trip; the first one is pinned to the board. */
-  photos: Array<{
-    src: string;
-    alt: string;
-  }>;
+  photos: MemoryPhoto[];
 }
 
 /**
@@ -22,10 +20,7 @@ export interface TravelMemory {
  * PNG or WebP: Chrome and Firefox can't show HEIC/HEIF.
  */
 const photosOf = (trip: string, files: string[]) =>
-  files.map((file, index) => ({
-    src: r2Url(file),
-    alt: `${trip}, photo ${index + 1} of ${files.length}`,
-  }));
+  files.map((file, index) => r2Photo(file, `${trip}, photo ${index + 1} of ${files.length}`));
 
 // Board order: each memory is strung to the next one around the board.
 export const travelMemories: TravelMemory[] = [

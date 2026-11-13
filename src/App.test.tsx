@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import { readFileSync } from 'fs';
 import { vi } from 'vitest';
 import App from './App';
 
@@ -108,6 +109,19 @@ test('shows each school with its dates on the right of its name', () => {
   expect(row.nextElementSibling).toHaveTextContent(
     /^Full Stack Web Development, Computer Science · India$/
   );
+});
+
+test('points at raghavbhatirv.in, never the www address that does not serve the site', () => {
+  render(<App />);
+  expect(document.querySelector('a[href*="www.raghavbhatirv.in"]')).toBeNull();
+  expect(screen.getByRole('link', { name: 'Website' })).toHaveAttribute(
+    'href',
+    'https://raghavbhatirv.in/'
+  );
+  const html = readFileSync('index.html', 'utf8');
+  expect(html).not.toContain('www.raghavbhatirv.in');
+  expect(html).toContain('<link rel="canonical" href="https://raghavbhatirv.in/" />');
+  expect(html).toContain('<meta property="og:image" content="https://raghavbhatirv.in/og.png" />');
 });
 
 test('has no learning log', () => {
