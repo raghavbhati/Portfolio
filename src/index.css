@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 
 /* ── Design Tokens via Tailwind v4 @theme ─────────────────────────────── */
-@theme {
+/* `inline` makes utilities read the live variables, so the light theme and the visitor's
+   background preference (set on <body>) reach every element, not just <body>. */
+@theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-line: var(--line);
@@ -13,6 +15,7 @@
   --color-control: var(--control);
   --color-heading: var(--heading);
   --color-secondary: var(--secondary);
+  --color-string: var(--string);
 
   --font-serif: var(--serif);
   --font-sans: var(--sans);
@@ -24,32 +27,41 @@
   :root {
     color-scheme: dark;
     --bg: #000;
-    --surface: #080808;
-    --line: #262626;
     --text: #b0b0b0;
     --muted: #929292;
     --bright: #ededed;
-    --tag: #242424;
     --serif: 'Instrument Serif', Georgia, serif;
     --sans: 'DM Sans', Arial, sans-serif;
-    --panel: #1c1c1c;
-    --control: #252525;
     --heading: #ededed;
     --secondary: #b0b0b0;
+    --string: #fb6474;
+  }
+
+  /* Surfaces are shades of the page background, so the visitor's background colour
+     (set as --bg on <body>) tints every card, chip, border and panel with it. They must be
+     declared here, where --bg is set. On the default black these are #080808, #1c1c1c,
+     #242424, #252525 and #262626. */
+  body {
+    --surface: color-mix(in srgb, var(--bg), #fff 3%);
+    --panel: color-mix(in srgb, var(--bg), #fff 11%);
+    --tag: color-mix(in srgb, var(--bg), #fff 14%);
+    --control: color-mix(in srgb, var(--bg), #fff 14.5%);
+    --line: color-mix(in srgb, var(--bg), #fff 15%);
   }
 
   body[data-theme='light'] {
     color-scheme: light;
-    --surface: #f4f4f3;
-    --line: #d6d6d2;
+    --surface: color-mix(in srgb, var(--bg), #000 2.4%);
+    --panel: color-mix(in srgb, var(--bg), #000 1.6%);
+    --tag: color-mix(in srgb, var(--bg), #000 7.2%);
+    --control: color-mix(in srgb, var(--bg), #000 7.2%);
+    --line: color-mix(in srgb, var(--bg), #000 14.4%);
     --text: #444;
     --muted: #646464;
     --bright: #191919;
-    --tag: #e8e8e5;
-    --panel: #f6f6f4;
-    --control: #e8e8e5;
     --heading: #191919;
     --secondary: #555;
+    --string: #e35469;
   }
 
   * {
@@ -107,5 +119,53 @@
     html {
       scroll-behavior: auto;
     }
+  }
+}
+
+/* ── Pinboard dots ────────────────────────────────────────────────────── */
+/* One dot every 24px, centred in its tile. DotField's canvas draws on the same grid. */
+@utility dot-grid {
+  background-image: radial-gradient(circle, var(--line) 1px, transparent 1.4px);
+  background-size: 24px 24px;
+}
+
+/* ── Memory boards ────────────────────────────────────────────────────── */
+@keyframes memory-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.96);
+  }
+}
+
+@keyframes memory-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes memory-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.memory-drop-in {
+  animation: memory-drop-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.memory-pop {
+  animation: memory-pop 260ms ease-out both;
+}
+
+.memory-strings {
+  animation: memory-fade 700ms ease-out 250ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memory-drop-in,
+  .memory-pop,
+  .memory-strings {
+    animation: none;
   }
 }

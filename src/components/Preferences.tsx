@@ -1,11 +1,9 @@
 import type { ReactNode } from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useLayoutEffect, useState } from 'react';
 
 export interface Preferences {
   theme: 'dark' | 'light' | 'system';
-  font: 'editorial' | 'sans' | 'serif' | 'mono';
   background: 'neutral' | 'warm' | 'blue' | 'green';
-  timezone: string;
 }
 interface PreferencesContextValue {
   preferences: Preferences;
@@ -15,34 +13,12 @@ interface PreferencesContextValue {
 }
 export const defaults: Preferences = {
   theme: 'dark',
-  font: 'editorial',
   background: 'neutral',
-  timezone: 'Asia/Kolkata',
 };
 const storageKey = 'portfolio-visitor-settings-v1';
 const allowed: Record<keyof Preferences, readonly string[]> = {
   theme: ['dark', 'light', 'system'],
-  font: ['editorial', 'sans', 'serif', 'mono'],
   background: ['neutral', 'warm', 'blue', 'green'],
-  timezone: [
-    'Asia/Kolkata',
-    'local',
-    'UTC',
-    'America/New_York',
-    'America/Los_Angeles',
-    'Europe/London',
-    'Europe/Paris',
-    'Asia/Dubai',
-    'Asia/Singapore',
-    'Asia/Tokyo',
-    'Australia/Sydney',
-  ],
-};
-const fonts = {
-  editorial: ["'DM Sans',Arial,sans-serif", "'Instrument Serif',Georgia,serif"],
-  sans: ["'DM Sans',Arial,sans-serif", "'DM Sans',Arial,sans-serif"],
-  serif: ['Georgia,serif', 'Georgia,serif'],
-  mono: ['ui-monospace,Consolas,monospace', 'ui-monospace,Consolas,monospace'],
 };
 const colours = {
   neutral: ['#000000', '#fafaf9'],
@@ -65,15 +41,14 @@ export function readPreferences() {
 export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [preferences, setPreferences] = useState(readPreferences);
   const [status, setStatus] = useState('Preferences are saved in this browser.');
-  useEffect(() => {
+  // Before paint, so a saved theme or background never flashes the default first.
+  useLayoutEffect(() => {
     const query = window.matchMedia('(prefers-color-scheme: light)');
     const apply = () => {
       const light =
         preferences.theme === 'light' || (preferences.theme === 'system' && query.matches);
       document.body.dataset.theme = light ? 'light' : 'dark';
       document.body.style.setProperty('--bg', colours[preferences.background][light ? 1 : 0]);
-      document.body.style.setProperty('--sans', fonts[preferences.font][0]);
-      document.body.style.setProperty('--serif', fonts[preferences.font][1]);
     };
     apply();
     query.addEventListener('change', apply);

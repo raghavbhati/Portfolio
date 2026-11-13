@@ -1,20 +1,24 @@
-import { projects, stack } from './data/profile';
+import { education, ideaclanRoles, links, stack } from './data/profile';
 import Settings from './components/Settings';
-import LearningLog from './components/LearningLog';
+import ResumeLink from './components/ResumeLink';
+import CommandPalette from './components/CommandPalette';
 import GitHubActivity from './components/GitHubActivity';
+import Memories from './components/Memories';
+import TravelMemory from './components/TravelMemory';
 import FooterClock from './components/FooterClock';
+import DotField from './components/DotField';
 import { PreferencesProvider } from './components/Preferences';
 
 export default function App() {
   return (
     <PreferencesProvider>
-      <Settings />
-
       <a className="absolute z-20 bg-white text-black p-2 left-3 -top-20 focus:top-3" href="#main">
         Skip to content
       </a>
 
-      <div className="max-w-3xl min-h-screen mx-auto border-x border-dashed border-line">
+      <DotField />
+
+      <div className="max-w-3xl min-h-screen mx-auto border-x border-dashed border-line bg-bg">
         <header className="h-16 flex items-center justify-between py-4 px-6 border-b border-dashed border-line max-[420px]:px-[18px]">
           <a
             className="grid place-items-center w-8 h-8 rounded-full border border-[#444] bg-[radial-gradient(circle_at_30%_20%,#515151,#101010_75%)] font-serif italic text-lg text-[#ddd]"
@@ -25,27 +29,23 @@ export default function App() {
           </a>
           <nav className="flex gap-2 max-[420px]:gap-[5px]" aria-label="Main navigation">
             <a
-              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-[#171717] [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
+              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-panel [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
               href="#about"
             >
               About
             </a>
             <a
-              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-[#171717] [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
-              href="#projects"
-            >
-              Projects
-            </a>
-            <a
-              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-[#171717] [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
+              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-panel [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
               href="#github-activity"
             >
               GitHub
             </a>
+            <CommandPalette />
+            <Settings />
           </nav>
         </header>
 
-        <main className="p-6 max-[420px]:py-6 max-[420px]:px-[18px]" id="main">
+        <main className="px-6 pt-6 max-[420px]:px-[18px]" id="main">
           <section
             className="mb-14 scroll-mt-6 max-[680px]:mb-11"
             id="about"
@@ -75,8 +75,16 @@ export default function App() {
               <strong className="font-medium text-[#ddd] [body[data-theme=light]_&]:text-heading">
                 backend systems and microservices
               </strong>{' '}
-              with Node.js, TypeScript, and GraphQL. At IdeaClan, I work on FabFunnel, taking
-              features from system design to production.
+              with Node.js, TypeScript, and GraphQL. At IdeaClan, I work on{' '}
+              <a
+                className="text-[#ddd] underline decoration-line underline-offset-[3px] transition-[text-decoration-color] hover:decoration-muted [body[data-theme=light]_&]:text-heading"
+                href={links.fabfunnel}
+                target="_blank"
+                rel="noreferrer"
+              >
+                FabFunnel
+              </a>
+              , taking features from system design to production.
             </p>
             <p className="max-w-[510px] my-2.5 mt-2.5 mb-[18px] text-muted [body[data-theme=light]_&]:text-muted">
               My journey started with content creation and WordPress, then full-stack development at
@@ -86,7 +94,7 @@ export default function App() {
             <p className="mb-[3px] text-[15px]">
               Get in touch at{' '}
               <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
                 href="mailto:workmail.raghav@gmail.com"
               >
                 workmail.raghav@gmail.com
@@ -95,27 +103,23 @@ export default function App() {
             </p>
             <p className="mt-[3px]">
               <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
                 href="https://github.com/raghavbhati"
               >
                 GitHub
               </a>{' '}
               ·{' '}
               <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
                 href="https://www.linkedin.com/in/raghavbhatirv/"
               >
                 LinkedIn
               </a>{' '}
               ·{' '}
-              <a
-                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] hover:bg-[#363636] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
-                href="/RaghavBhatiResume.pdf"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Resume ↗
-              </a>
+              <ResumeLink
+                label="Resume ↗"
+                className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] transition-[border-color] hover:border-muted [body[data-theme=light]_&]:text-[#414141]"
+              />
             </p>
           </section>
 
@@ -125,70 +129,50 @@ export default function App() {
             aria-labelledby="experience-title"
           >
             <h2
-              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-[#242424] text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
+              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-tag text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
               id="experience-title"
             >
               Where I've Contributed
             </h2>
-            <details className="group mb-[18px] border border-dashed border-line bg-surface" open>
-              <summary className="list-none cursor-pointer relative p-4 pr-6 select-none [&::-webkit-details-marker]:hidden after:content-['⌄'] after:absolute after:right-[17px] after:top-[18px] after:text-[#777] group-open:after:content-['⌃']">
-                <div className="pr-6 font-medium text-bright [body[data-theme=light]_&]:text-heading">
-                  IdeaClan · FabFunnel{' '}
-                  <span
-                    className="text-[10px] px-1 py-[1px] border border-line rounded bg-tag ml-1 text-muted"
-                    aria-hidden="true"
+            <div className="mb-[18px] border border-dashed border-line bg-surface">
+              <div className="p-4">
+                <div className="font-medium text-bright [body[data-theme=light]_&]:text-heading">
+                  IdeaClan ·{' '}
+                  <a
+                    className="underline decoration-line underline-offset-[3px] transition-[text-decoration-color] hover:decoration-muted"
+                    href={links.fabfunnel}
+                    target="_blank"
+                    rel="noreferrer"
                   >
-                    IC
-                  </span>
+                    FabFunnel ↗
+                  </a>
                 </div>
                 <div className="flex justify-between items-center text-xs text-muted mt-1 max-[680px]:flex-wrap max-[680px]:gap-[5px]">
-                  <span>
-                    Associate Software Engineer{' '}
-                    <span className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]">
-                      Chandigarh, India
-                    </span>
+                  <span className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:text-[#414141]">
+                    Chandigarh, India
                   </span>
                   <span className="text-muted max-[680px]:w-full max-[680px]:mt-[3px]">
                     March 2024 – Present
                   </span>
                 </div>
-              </summary>
-              <div className="p-4 pt-0 text-sm text-text border-t border-dashed border-line mt-3 pt-3 [body[data-theme=light]_&]:text-muted">
-                <ul className="list-disc pl-5 my-2 space-y-1.5">
-                  <li>
-                    Developed and maintained backend microservices using Node.js and TypeScript,
-                    with optimized GraphQL and REST APIs and GraphQL Federation.
-                  </li>
-                  <li>
-                    Built Facebook and NewsBreak services for in-platform campaign management,
-                    integrating ad accounts and synchronizing spend data in near real time. Backend
-                    optimizations reduced report processing time by 30%.
-                  </li>
-                  <li>
-                    Built a Kafka pipeline to stream data into ClickHouse and used TypeORM with
-                    PostgreSQL for schema design and query optimization.
-                  </li>
-                  <li>
-                    Developed real-time notifications with GraphQL subscriptions, WebSockets, Redis
-                    Pub/Sub, and RabbitMQ.
-                  </li>
-                  <li>
-                    Built a User Activity service using Loki APIs and event-driven workflows for
-                    background report synchronization.
-                  </li>
-                  <li>
-                    Contributed React features using Apollo Client and GraphQL Codegen for type-safe
-                    client applications.
-                  </li>
-                </ul>
-                <p className="mt-2 text-xs">
-                  <strong className="font-semibold text-[#ddd] [body[data-theme=light]_&]:text-heading">
-                    Focus:
-                  </strong>{' '}
-                  Backend ownership, performance, reliability, and production delivery.
-                </p>
               </div>
-            </details>
+              {/* One dropdown per role: its title and dates, then what it involved. */}
+              {ideaclanRoles.map((role) => (
+                <details key={role.title} className="group border-t border-dashed border-line" open>
+                  <summary className="list-none cursor-pointer relative flex justify-between items-center gap-3 py-3 pl-4 pr-10 select-none focus-visible:outline-offset-[-3px] [&::-webkit-details-marker]:hidden after:content-['⌄'] after:absolute after:right-[17px] after:top-3 after:text-[#777] group-open:after:content-['⌃'] max-[680px]:flex-wrap max-[680px]:gap-[3px]">
+                    <span className="text-sm font-medium text-bright [body[data-theme=light]_&]:text-heading">
+                      {role.title}
+                    </span>
+                    <span className="text-xs text-muted max-[680px]:w-full">{role.dates}</span>
+                  </summary>
+                  <ul className="list-disc m-0 pl-9 pr-4 pb-4 space-y-1.5 text-sm text-text [body[data-theme=light]_&]:text-muted">
+                    {role.points.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+            </div>
           </section>
 
           <section
@@ -255,96 +239,32 @@ export default function App() {
 
           <section
             className="mb-14 scroll-mt-6 max-[680px]:mb-11"
-            id="projects"
-            aria-labelledby="projects-title"
-          >
-            <h2
-              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-[#242424] text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
-              id="projects-title"
-            >
-              Things I've Built
-            </h2>
-            {projects.map((project) => (
-              <article
-                className="grid grid-cols-[200px_minmax(0,1fr)] gap-5 p-4 border border-dashed border-line bg-surface mb-4 max-[680px]:grid-cols-1 max-[420px]:p-3"
-                key={project.name}
-              >
-                <div className="flex items-center justify-center relative overflow-hidden rounded-[3px] min-h-[206px] border border-[#171f1c] p-5 bg-[radial-gradient(ellipse_at_70%_85%,#126347,#03241c_60%,#061511)] max-[680px]:min-h-[225px]">
-                  <img
-                    className="block w-full h-full object-cover object-top"
-                    src={project.image}
-                    alt={`${project.name} website screenshot`}
-                    loading="lazy"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-baseline justify-between gap-3 mb-2 flex-wrap">
-                    <h3 className="m-0 text-bright font-serif text-[26px] leading-tight max-[420px]:text-[22px] [body[data-theme=light]_&]:text-heading">
-                      {project.name}
-                    </h3>
-                    <div className="flex items-center gap-2 text-xs text-muted">
-                      <a
-                        className="text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
-                        href={project.live}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Live ↗
-                      </a>
-                      <span>|</span>
-                      <a
-                        className="text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
-                        href={project.github}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        GitHub ↗
-                      </a>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted leading-relaxed my-2 [body[data-theme=light]_&]:text-muted">
-                    {project.description}
-                  </p>
-                  <div className="text-[11px] text-muted mt-3 mb-1.5">Technologies used:</div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {project.tech.map((tech) => (
-                      <span
-                        className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-[#2b2b2b] px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141]"
-                        key={tech}
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </article>
-            ))}
-          </section>
-
-          <section
-            className="mb-14 scroll-mt-6 max-[680px]:mb-11"
             id="education"
             aria-labelledby="education-title"
           >
             <h2
-              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-[#242424] text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:bg-tag [body[data-theme=light]_&]:border-line [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
+              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-tag text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
               id="education-title"
             >
               Education &amp; Certifications
             </h2>
             <div className="text-sm text-text border-dashed border-line pl-0 [body[data-theme=light]_&]:text-muted">
-              <h3 className="m-0 text-base font-medium text-bright [body[data-theme=light]_&]:text-heading">
-                Masai School
-              </h3>
-              <p className="text-xs text-muted mt-1">
-                Full Stack Web Development, Computer Science · March 2023 – February 2024 · India
-              </p>
-              <h3 className="mt-6 text-base font-medium text-bright [body[data-theme=light]_&]:text-heading">
-                Maharaja Ganga Singh University
-              </h3>
-              <p className="text-xs text-muted mt-1">
-                Bachelor of Arts · July 2020 – June 2023 · Bikaner, India
-              </p>
+              {education.map((entry) => (
+                <div key={entry.school} className="mt-6 first:mt-0">
+                  {/* School on the left, its dates on the right, as on the experience card. */}
+                  <div className="flex items-baseline justify-between gap-3 max-[680px]:flex-wrap max-[680px]:gap-y-0.5">
+                    <h3 className="m-0 text-base font-medium text-bright [body[data-theme=light]_&]:text-heading">
+                      {entry.school}
+                    </h3>
+                    <span className="whitespace-nowrap text-xs text-muted max-[680px]:w-full">
+                      {entry.dates}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted mt-1">
+                    {entry.course} · {entry.place}
+                  </p>
+                </div>
+              ))}
               <h3 className="mt-6 text-base font-medium text-bright [body[data-theme=light]_&]:text-heading">
                 Certifications
               </h3>
@@ -356,7 +276,6 @@ export default function App() {
           </section>
 
           <GitHubActivity />
-          <LearningLog />
         </main>
 
         <section
@@ -420,12 +339,6 @@ export default function App() {
                 </a>
                 <a
                   className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
-                  href="#projects"
-                >
-                  Projects
-                </a>
-                <a
-                  className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
                   href="#stack"
                 >
                   Stack
@@ -436,19 +349,11 @@ export default function App() {
                 >
                   Education
                 </a>
-                <a
+                <ResumeLink
+                  label="Resume ↓"
                   className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
-                  href="/RaghavBhatiResume.pdf"
                   download
-                >
-                  Resume ↓
-                </a>
-                <a
-                  className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
-                  href="#learning-log"
-                >
-                  Learning Log
-                </a>
+                />
                 <a
                   className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
                   href="#footer"
@@ -551,7 +456,7 @@ export default function App() {
                 </a>
                 <a
                   className="grid place-items-center w-[38px] h-[38px] border border-line rounded-[9px] bg-bg text-muted transition-[color,border-color] duration-150 hover:text-bright hover:border-muted"
-                  href="https://www.raghavbhatirv.in/"
+                  href="https://raghavbhatirv.in/"
                   aria-label="Website"
                   title="Website"
                   target="_blank"
@@ -603,6 +508,9 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      <Memories />
+      <TravelMemory />
     </PreferencesProvider>
   );
 }

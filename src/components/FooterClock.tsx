@@ -1,19 +1,16 @@
 import { useEffect, useState } from 'react';
-import { usePreferences } from './Preferences';
+
+// The clock always shows Raghav's local time.
+const ZONE = 'Asia/Kolkata';
 
 export default function FooterClock() {
-  const { preferences } = usePreferences();
   const [now, setNow] = useState(() => new Date());
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const zone = preferences.timezone === 'local' ? deviceZone : preferences.timezone;
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const label =
-    zone === 'Asia/Kolkata' ? 'India' : (zone.split('/').pop() || 'UTC').replaceAll('_', ' ');
 
   return (
     <div className="grid text-right text-[11px] gap-[5px] max-[580px]:text-left">
@@ -35,10 +32,10 @@ export default function FooterClock() {
       </span>
       <span className="text-[10px] text-muted">Based on your device timezone</span>
       <span className="text-text [font-variant-numeric:tabular-nums]">
-        <span id="timezone-label">{label}</span> ·{' '}
+        <span id="timezone-label">India</span> ·{' '}
         <time id="local-time" className="font-mono" dateTime={now.toISOString()}>
           {new Intl.DateTimeFormat('en-IN', {
-            timeZone: zone,
+            timeZone: ZONE,
             hour: '2-digit',
             minute: '2-digit',
             hour12: false,
