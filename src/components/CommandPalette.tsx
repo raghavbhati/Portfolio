@@ -1,7 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { usePreferences } from './Preferences';
 import { NAV_ITEM } from './navItem';
-import { email, links, resumeUrl } from '../data/profile';
+import { email, links, projects, resumeUrl } from '../data/profile';
 
 type Group = 'Go to' | 'Open' | 'Actions' | 'Theme';
 
@@ -21,6 +21,7 @@ const GROUPS: Group[] = ['Go to', 'Open', 'Actions', 'Theme'];
 const SECTIONS: Array<[id: string, label: string, keywords: string]> = [
   ['about', 'About', 'intro home'],
   ['experience', 'Experience', 'work ideaclan fabfunnel job'],
+  ['projects', 'Projects', 'built side apps evenout moneynify'],
   ['stack', 'Stack', 'skills tools tech ai'],
   ['education', 'Education', 'certifications masai university'],
   ['github-activity', 'GitHub activity', 'contributions code repositories'],
@@ -191,6 +192,16 @@ function Palette({ onClose }: { onClose: () => void }) {
         window.location.hash = 'memories';
       },
     },
+    ...projects.map(
+      (project): Command => ({
+        id: `open-${project.name.toLowerCase()}`,
+        group: 'Open',
+        label: project.name,
+        keywords: `project live app ${project.tagline}`,
+        hint: '↗',
+        run: () => openTab(project.live),
+      })
+    ),
     {
       id: 'open-resume',
       group: 'Open',
@@ -218,6 +229,14 @@ function Palette({ onClose }: { onClose: () => void }) {
       run: () => openTab(links.linkedin),
     },
     { id: 'open-x', group: 'Open', label: 'X (Twitter)', hint: '↗', run: () => openTab(links.x) },
+    {
+      id: 'open-youtube',
+      group: 'Open',
+      label: 'YouTube',
+      keywords: 'unboxingforever channel videos',
+      hint: '↗',
+      run: () => openTab(links.youtube),
+    },
     {
       id: 'copy-email',
       group: 'Actions',

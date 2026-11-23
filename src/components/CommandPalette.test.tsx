@@ -127,15 +127,39 @@ describe('CommandPalette', () => {
     expect(document.body.dataset.theme).toBe('light');
   });
 
-  test('the résumé is listed but unavailable until there is a PDF', () => {
+  test('opens the résumé PDF in a new tab', () => {
+    const open = vi.fn();
+    vi.stubGlobal('open', open);
     renderPalette();
     press('k', { metaKey: true });
     type('resume');
     const resume = screen.getByRole('option', { name: /Resume/ });
-    expect(resume).toHaveAttribute('aria-disabled', 'true');
-    expect(resume).toHaveTextContent('currently not available');
+    expect(resume).not.toHaveAttribute('aria-disabled');
     fireEvent.keyDown(searchBox(), { key: 'Enter' });
-    expect(palette()).toBeInTheDocument();
+    expect(open).toHaveBeenCalledWith('/RaghavBhatiResume.pdf', '_blank', 'noopener,noreferrer');
+    expect(palette()).not.toBeInTheDocument();
+  });
+
+  test('jumps to the projects and opens each one live', () => {
+    const open = vi.fn();
+    vi.stubGlobal('open', open);
+    renderPalette();
+    press('k', { metaKey: true });
+    type('projects');
+    expect(screen.getAllByRole('option')[0]).toHaveTextContent('Projects#projects');
+
+    type('splitwise');
+    fireEvent.keyDown(searchBox(), { key: 'Enter' });
+    expect(open).toHaveBeenCalledWith('https://evenout.in/', '_blank', 'noopener,noreferrer');
+
+    press('k', { metaKey: true });
+    type('moneynify');
+    fireEvent.click(screen.getByRole('option', { name: /^MoneyNify/ }));
+    expect(open).toHaveBeenLastCalledWith(
+      'https://app.zeherkhanekapaisanahihai.in/',
+      '_blank',
+      'noopener,noreferrer'
+    );
   });
 
   test('Escape closes it and puts focus back where it was', async () => {
