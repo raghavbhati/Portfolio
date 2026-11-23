@@ -1,4 +1,13 @@
-import { education, ideaclanRoles, links, stack } from './data/profile';
+import {
+  careerStart,
+  certifications,
+  education,
+  ideaclanRoles,
+  links,
+  projects,
+  stack,
+} from './data/profile';
+import { experienceYears } from './utils/experience';
 import Settings from './components/Settings';
 import ResumeLink from './components/ResumeLink';
 import CommandPalette from './components/CommandPalette';
@@ -36,6 +45,12 @@ export default function App() {
             </a>
             <a
               className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-panel [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
+              href="#projects"
+            >
+              Projects
+            </a>
+            <a
+              className="text-[13px] py-[3px] px-[7px] border border-dashed border-line hover:bg-panel [body[data-theme=light]_&]:hover:bg-tag [body[data-theme=light]_&]:hover:text-[#111] max-[420px]:text-xs"
               href="#github-activity"
             >
               GitHub
@@ -58,24 +73,25 @@ export default function App() {
               Hi, I'm Raghav Bhati
             </h1>
             <div className="flex gap-2 items-center text-base text-muted max-[420px]:text-sm">
-              <span>frontend</span>
-              <i
-                className="w-[5px] h-[5px] rounded-full bg-[#454545] inline-block"
-                aria-hidden="true"
-              ></i>
               <span>backend</span>
               <i
                 className="w-[5px] h-[5px] rounded-full bg-[#454545] inline-block"
                 aria-hidden="true"
               ></i>
-              <span>distributed systems</span>
+              <span>full stack</span>
+              <i
+                className="w-[5px] h-[5px] rounded-full bg-[#454545] inline-block"
+                aria-hidden="true"
+              ></i>
+              <span>event-driven systems</span>
             </div>
             <p className="max-w-[510px] my-2.5 mt-2.5 mb-[18px] text-muted [body[data-theme=light]_&]:text-muted">
-              I'm a software engineer based in Chandigarh, India, building{' '}
+              I'm a backend-focused full stack engineer based in Chandigarh, India, with{' '}
+              {experienceYears(careerStart)} years of building{' '}
               <strong className="font-medium text-[#ddd] [body[data-theme=light]_&]:text-heading">
-                backend systems and microservices
+                scalable, event-driven microservices
               </strong>{' '}
-              with Node.js, TypeScript, and GraphQL. At IdeaClan, I work on{' '}
+              with Node.js, TypeScript, and GraphQL, plus React frontends. At IdeaClan, I work on{' '}
               <a
                 className="text-[#ddd] underline decoration-line underline-offset-[3px] transition-[text-decoration-color] hover:decoration-muted [body[data-theme=light]_&]:text-heading"
                 href={links.fabfunnel}
@@ -84,12 +100,22 @@ export default function App() {
               >
                 FabFunnel
               </a>
-              , taking features from system design to production.
+              , where I've shipped ad-platform integrations end to end for Facebook, NewsBreak,
+              Google Ads, Snapchat, BIGO, and SmartNews.
             </p>
             <p className="max-w-[510px] my-2.5 mt-2.5 mb-[18px] text-muted [body[data-theme=light]_&]:text-muted">
-              My journey started with content creation and WordPress, then full-stack development at
-              Masai School. Today I focus on reliable APIs, event-driven services, and data
-              pipelines, with React work along the way.
+              My journey started with content creation: I grew a tech YouTube channel,{' '}
+              <a
+                className="text-[#ddd] underline decoration-line underline-offset-[3px] transition-[text-decoration-color] hover:decoration-muted [body[data-theme=light]_&]:text-heading"
+                href={links.youtube}
+                target="_blank"
+                rel="noreferrer"
+              >
+                @UnboxingForever
+              </a>
+              , to 32K subscribers, then moved to WordPress and full-stack development at Masai
+              School. Today I focus on reliability, observability, and efficient data pipelines,
+              using AI-assisted development to ship faster.
             </p>
             <p className="mb-[3px] text-[15px]">
               Get in touch at{' '}
@@ -171,6 +197,75 @@ export default function App() {
                     ))}
                   </ul>
                 </details>
+              ))}
+            </div>
+          </section>
+
+          <section
+            className="mb-14 scroll-mt-6 max-[680px]:mb-11"
+            id="projects"
+            aria-labelledby="projects-title"
+          >
+            <h2
+              className="relative table text-base font-normal leading-normal mb-6 m-0 bg-tag text-[#ddd] py-[2px] px-[6px] [body[data-theme=light]_&]:text-[#414141] before:content-[''] before:absolute before:-top-[2px] before:-left-[2px] before:w-1 before:h-1 before:bg-[#777] before:rounded-full before:[box-shadow:0_29px_#777] after:content-[''] after:absolute after:-top-[2px] after:-right-[2px] after:w-1 after:h-1 after:bg-[#777] after:rounded-full after:[box-shadow:0_29px_#777]"
+              id="projects-title"
+            >
+              Things I've Built
+            </h2>
+            <div className="grid grid-cols-2 gap-4 max-[680px]:grid-cols-1">
+              {projects.map((project) => (
+                <article
+                  key={project.name}
+                  className="flex flex-col border border-dashed border-line bg-surface p-4"
+                  aria-label={project.name}
+                >
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="m-0 font-serif font-normal text-[26px] leading-tight -tracking-[0.5px] text-bright [body[data-theme=light]_&]:text-heading">
+                      {project.name}
+                    </h3>
+                    {/* GitHub joins Live once the repository is public. */}
+                    <div className="flex shrink-0 items-center gap-2 text-xs text-muted">
+                      {project.repo.isPublic && (
+                        <>
+                          <a
+                            className="text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
+                            href={project.repo.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <span className="sr-only">{project.name}</span> GitHub ↗
+                          </a>
+                          <span aria-hidden="true">·</span>
+                        </>
+                      )}
+                      <a
+                        className="text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
+                        href={project.live}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span className="sr-only">{project.name}</span> Live ↗
+                      </a>
+                    </div>
+                  </div>
+                  <p className="m-0 mt-0.5 text-xs italic text-muted">{project.tagline}</p>
+                  <p className="mt-3 mb-4 text-sm text-text [body[data-theme=light]_&]:text-muted">
+                    {project.description}
+                  </p>
+                  <ul
+                    className="mt-auto flex flex-wrap gap-1.5 p-0 list-none"
+                    aria-label={`${project.name} built with`}
+                  >
+                    {project.tech.map((tech) => (
+                      <li
+                        className="rounded-[3px] whitespace-nowrap text-xs bg-tag border border-line px-1 py-[1px] text-[#ccc] [body[data-theme=light]_&]:text-[#414141]"
+                        key={tech}
+                      >
+                        {tech}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
               ))}
             </div>
           </section>
@@ -269,8 +364,9 @@ export default function App() {
                 Certifications
               </h3>
               <ul className="list-disc pl-5 my-2 space-y-1 text-xs text-muted">
-                <li>Building RAG Apps Using MongoDB</li>
-                <li>Postman API Fundamentals Student Expert</li>
+                {certifications.map((certification) => (
+                  <li key={certification}>{certification}</li>
+                ))}
               </ul>
             </div>
           </section>
@@ -330,6 +426,12 @@ export default function App() {
                   href="#experience"
                 >
                   Work
+                </a>
+                <a
+                  className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
+                  href="#projects"
+                >
+                  Projects
                 </a>
                 <a
                   className="text-sm text-muted hover:text-bright [body[data-theme=light]_&]:hover:text-[#111]"
@@ -434,7 +536,7 @@ export default function App() {
                 </a>
                 <a
                   className="grid place-items-center w-[38px] h-[38px] border border-line rounded-[9px] bg-bg text-muted transition-[color,border-color] duration-150 hover:text-bright hover:border-muted"
-                  href="https://www.youtube.com/@UnboxingForever/"
+                  href={links.youtube}
                   aria-label="YouTube"
                   title="YouTube"
                   target="_blank"
